@@ -1,21 +1,22 @@
-# Escáner de zonas de compra
+# Zonas de compra
 
-HTML estático. Compara el spot de Binance USDT contra las zonas de compra del plan semanal 2026–2029.
+App Next.js (export estático). Spot Binance USDT contra zonas del semanal 2026–2029. El gráfico trae compras, invalidación, TPs y SMA 50/200 (cruce dorado / de la muerte como confirmación).
 
 No es asesoramiento financiero.
 
-## Uso
-
-Abrí el sitio y pulsá **Escanear ahora**. El % es sobre lo que vas a meter en ese token, no del portfolio.
-
 ## Local
 
-Abrí `index.html` en el navegador, o:
+```bash
+npm install
+npm run dev
+```
+
+## UI check
 
 ```bash
-python -m http.server 8765
+npm run check:ui
 ```
 
 ## Deploy
 
-Repo en GitHub. Vercel sirve `index.html` en la raíz.
+Vercel: framework Next. Root `.`

@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#101218" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta
+      name="description"
+      content="Escáner de zonas de compra semanales para el ciclo 2026–2029. Binance USDT."
+    />
+    <title>Zonas de compra</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@5.2.0/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+      :root {
+        --ink: #e8e0d0;
+        --mute: #8d8678;
+        --faint: #5c584f;
+        --carbon: #101218;
+        --panel: #171a22;
+        --rule: #2c3140;
+        --gold: #d4b46a;
+        --gold-dim: #2a2618;
+        --wait: #7d8b97;
+        --inv: #c45c4a;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--carbon);
+        color: var(--ink);
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+      }
+
+      body {
+        min-height: 100dvh;
+        overflow: hidden;
+      }
+
+      button {
+        font: inherit;
+        appearance: none;
+        cursor: pointer;
+      }
+
+      .app {
+        height: 100dvh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: calc(10px + var(--safe-top)) 16px 10px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--carbon);
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .scan {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0 14px;
+        border: 1px solid var(--gold);
+        background: transparent;
+        color: var(--gold);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-size: 11px;
+      }
+
+      .scan:active {
+        transform: scale(0.97);
+      }
+
+      .scan:disabled {
+        opacity: 0.45;
+        cursor: wait;
+      }
+
+      .stamp {
+        color: var(--mute);
+        font-size: 10px;
+        margin-top: 2px;
+      }
+
+      .workspace {
+        min-height: 0;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .tally {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .tally div {
+        padding: 10px 12px;
+        border-right: 1px solid var(--rule);
+      }
+
+      .tally div:last-child {
+        border-right: 0;
+      }
+
+      .tally span {
+        display: block;
+        color: var(--mute);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .tally strong {
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .buy-count {
+        color: var(--gold);
+      }
+
+      .list {
+        min-height: 0;
+        overflow: auto;
+        padding: 10px 12px calc(12px + var(--safe-bottom));
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .card {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        color: inherit;
+        padding: 14px 14px 12px;
+        margin: 0 0 8px;
+        min-height: 44px;
+      }
+
+      .card:active {
+        transform: scale(0.99);
+      }
+
+      .card.buy {
+        border-color: var(--gold);
+        background: var(--gold-dim);
+      }
+
+      .card.dead {
+        border-color: #5a332c;
+      }
+
+      .card.open {
+        outline: 1px solid var(--gold);
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+      }
+
+      .ticker {
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+      }
+
+      .spot {
+        font-size: 15px;
+      }
+
+      .status-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 6px;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card.buy .status-row {
+        color: var(--gold);
+      }
+
+      .card.wait .status-row {
+        color: var(--wait);
+      }
+
+      .card.dead .status-row {
+        color: var(--inv);
+      }
+
+      .prices {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .chip {
+        border: 1px solid var(--rule);
+        padding: 6px 8px;
+        font-size: 11px;
+        color: var(--ink);
+        line-height: 1.35;
+      }
+
+      .chip.active {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .chip b {
+        display: block;
+        color: var(--mute);
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 9px;
+      }
+
+      .hint {
+        margin-top: 8px;
+        color: var(--faint);
+        font-size: 10px;
+      }
+
+      .err {
+        color: var(--inv);
+        font-size: 12px;
+        padding: 0 12px;
+      }
+
+      .tabbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: 1px solid var(--rule);
+        padding-bottom: var(--safe-bottom);
+        background: var(--carbon);
+      }
+
+      .tabbar button {
+        min-height: 52px;
+        border: 0;
+        background: transparent;
+        color: var(--mute);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 11px;
+      }
+
+      .tabbar button[aria-selected="true"] {
+        color: var(--gold);
+      }
+
+      .view {
+        display: none;
+        min-height: 0;
+      }
+
+      .view.active {
+        display: grid;
+        min-height: 0;
+        grid-template-rows: 1fr auto;
+      }
+
+      .thesis {
+        overflow: auto;
+        padding: 16px 16px calc(24px + var(--safe-bottom));
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .thesis h2 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .thesis p,
+      .thesis li {
+        color: var(--mute);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .thesis h2 + p {
+        margin-top: 0;
+      }
+
+      #tesis.active {
+        overflow: hidden;
+      }
+
+      .thesis section {
+        margin-bottom: 22px;
+      }
+
+      .thesis ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px;
+        border: 1px solid var(--rule);
+      }
+
+      .thesis table {
+        width: max-content;
+        min-width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+      }
+
+      .thesis th,
+      .thesis td {
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--rule);
+        text-align: left;
+        white-space: nowrap;
+        color: var(--mute);
+        vertical-align: top;
+      }
+
+      .thesis th {
+        color: var(--ink);
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 9px;
+      }
+
+      .thesis td:first-child {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .sheet {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: none;
+      }
+
+      .sheet.open {
+        display: block;
+      }
+
+      .backdrop {
+        position: absolute;
+        inset: 0;
+        background: #0008;
+        border: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .panel {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: min(88dvh, 820px);
+        background: var(--carbon);
+        border-top: 1px solid var(--rule);
+        display: grid;
+        grid-template-rows: auto auto auto minmax(280px, 1fr);
+        padding-bottom: var(--safe-bottom);
+      }
+
+      .grab {
+        width: 36px;
+        height: 4px;
+        background: var(--rule);
+        border-radius: 2px;
+        margin: 8px auto 0;
+      }
+
+      .sheet-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 14px 10px;
+      }
+
+      .sheet-head h2 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .close {
+        min-width: 44px;
+        min-height: 44px;
+        border: 1px solid var(--rule);
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .sheet-meta {
+        padding: 0 14px 8px;
+        color: var(--mute);
+        font-size: 11px;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .ta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 14px 10px;
+      }
+
+      .ta-chip {
+        border: 1px solid var(--rule);
+        padding: 6px 8px;
+        font-size: 10px;
+        line-height: 1.35;
+        color: var(--ink);
+      }
+
+      .ta-chip b {
+        display: block;
+        color: var(--mute);
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 9px;
+      }
+
+      .ta-chip.golden {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .ta-chip.death {
+        border-color: var(--inv);
+        color: var(--inv);
+      }
+
+      .list,
+      .sheet {
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .chart {
+        position: relative;
+        min-height: 0;
+        height: 100%;
+        background: #0b0d14;
+      }
+
+      .chart-host {
+        position: absolute;
+        inset: 0;
+      }
+
+      .ta-legend {
+        width: 100%;
+        border: 0;
+        padding: 0;
+        color: var(--faint);
+        font-size: 9px;
+        letter-spacing: 0.04em;
+      }
+
+      @media (max-width: 959px) {
+        .ta-legend {
+          display: none;
+        }
+
+        .chart {
+          min-height: 280px;
+        }
+      }
+
+      .empty-chart {
+        display: none;
+      }
+
+      @media (min-width: 960px) {
+        #zonas.active .workspace {
+          grid-template-columns: minmax(340px, 440px) 1fr;
+          grid-template-rows: auto 1fr;
+          height: 100%;
+        }
+
+        .tally {
+          grid-column: 1 / -1;
+        }
+
+        .list {
+          grid-column: 1;
+          grid-row: 2;
+          border-right: 1px solid var(--rule);
+          overflow: auto;
+        }
+
+        .sheet {
+          position: static;
+          display: block;
+          grid-row: 2;
+          grid-column: 2;
+          z-index: 1;
+          min-width: 0;
+        }
+
+        .sheet.open {
+          display: block;
+        }
+
+        .backdrop,
+        .grab {
+          display: none;
+        }
+
+        .panel {
+          position: static;
+          height: 100%;
+          border-top: 0;
+        }
+
+        .empty-chart {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--mute);
+          font-size: 13px;
+          padding: 24px;
+          text-align: center;
+        }
+
+        .sheet:not(.open) .panel {
+          display: none;
+        }
+
+        .sheet:not(.open) .empty-chart {
+          display: flex;
+          height: 100%;
+        }
+
+        .sheet.open .empty-chart {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .card:active,
+        .scan:active {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div>
+          <h1>Zonas de compra</h1>
+          <div class="stamp" id="stamp">Sin datos</div>
+        </div>
+        <button class="scan" id="scan" type="button">Escanear</button>
+      </header>
+
+      <div id="zonas" class="view active">
+        <div class="workspace" id="workspace">
+          <section class="tally" aria-live="polite">
+            <div>
+              <span>En compra</span>
+              <strong class="buy-count" id="nBuy">—</strong>
+            </div>
+            <div>
+              <span>Esperar</span>
+              <strong id="nWait">—</strong>
+            </div>
+            <div>
+              <span>Invalidado</span>
+              <strong id="nDead">—</strong>
+            </div>
+          </section>
+          <div class="list" id="list"></div>
+          <div class="sheet" id="sheet" hidden>
+            <button class="backdrop" id="backdrop" type="button" aria-label="Cerrar gráfico"></button>
+            <aside class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+              <div class="grab" aria-hidden="true"></div>
+              <div class="sheet-head">
+                <h2 id="sheetTitle">Gráfico</h2>
+                <button class="close" id="close" type="button">Cerrar</button>
+              </div>
+              <div class="sheet-meta" id="sheetMeta"></div>
+              <div class="ta-bar" id="taBar"></div>
+              <div class="chart">
+                <div class="chart-host" id="chartHost"></div>
+              </div>
+            </aside>
+            <div class="empty-chart">Tocá un token para ver el semanal</div>
+          </div>
+        </div>
+        <p class="err" id="err" hidden></p>
+      </div>
+
+      <div id="tesis" class="view">
+        <article class="thesis">
+          <section>
+            <h2>Qué trata este proyecto</h2>
+            <p>
+              Herramienta personal para un plan de ciclo 2026–2029, no un
+              bot ni un consejo de inversión. Compara el spot de Binance
+              (pares USDT) con zonas de compra del semanal: demanda, piso
+              de rango y ATL. Cada card dice si estás en zona, qué precio
+              llenar y qué % de <em>ese</em> token (no del portfolio). Tocá
+              la card y el semanal se abre acá. No es asesoramiento
+              financiero.
+            </p>
+            <p>
+              La tesis es comprar barato (drawdown vs ATH + cap vs negocio)
+              y vender en el bull entero: 20% ATH viejo / 30% ATH nuevo /
+              50% euforia. El primer techo semanal no es destino.
+            </p>
+          </section>
+          <section>
+            <h2>Qué no es</h2>
+            <ul>
+              <li>No predice el timing. Si la zona no llega, no se persigue.</li>
+              <li>No lee Bitcoin. Semanal &lt; 76k frena zona 1; &lt; 62k solo pánico: eso lo mirás vos.</li>
+              <li>No dibuja H&amp;S ni Elliott. Estructura + niveles + cap.</li>
+              <li>El cruce dorado / de la muerte confirma tendencia, no dispara la compra.</li>
+              <li>Invalidación = cierre semanal, no un wick intradía.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>El gráfico</h2>
+            <p>
+              Al tocar una card se abre el semanal de Binance con el
+              análisis ya dibujado: zonas de compra (oro), invalidación
+              (rojo punteado), TP1/2/3 de ciclo, SMA 50 y SMA 200.
+              Escala log para ver el techo de ciclo. Las flechas marcan
+              cruces de medias.
+            </p>
+            <p>
+              Cruce dorado = SMA 50 cruza <em>arriba</em> de la 200.
+              Cruce de la muerte = SMA 50 cruza <em>abajo</em>. En diario
+              es la definición clásica; en semanal confirma el ciclo.
+              Llegan tarde al piso y al techo: no se compra ni se vende
+              por el cruce, se usa para no pelearle a la tendencia.
+            </p>
+          </section>
+          <section>
+            <h2>Cómo se usa</h2>
+            <ul>
+              <li>Escanear pega a Binance y actualiza los 13.</li>
+              <li>Chips = precios de compra y % de esa línea.</li>
+              <li>Tap = semanal en el lugar, con zonas, INV, TPs y SMA 50/200 (cruce dorado / muerte como confirmación).</li>
+              <li>Si falta bajar, el % es hasta el techo de la próxima zona. Limit, no market chase.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Cómo comprar</h2>
+            <ul>
+              <li>3 zonas: 30% starter / 40% add / 30% pánico.</li>
+              <li>2 zonas: 40% arriba / 60% más barata.</li>
+              <li>1 zona: 70% en el rango, 30% reserva si perfora y el semanal no cierra bajo INV.</li>
+              <li>El starter es chico. El grueso va más abajo. Si la zona 3 no llega, ese 30% no se persigue.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Cómo vender (ciclo, no swing)</h2>
+            <ul>
+              <li>20% en el ATH previo (o techo de cap si el ATH no cabe: ADA 2,00 no 3,09).</li>
+              <li>30% en un máximo nuevo (~1,5× el ATH viejo).</li>
+              <li>50% euforia / ~2× ATH, trailing por cierre semanal.</li>
+              <li>Hasta el ATH viejo no se vende por una resistencia de 4 semanas.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Los 13 del escáner</h2>
+            <p>
+              Compra = dónde llenar. INV = cierre semanal que corta adds.
+              TP1/2/3 = salida de ciclo (20 / 30 / 50). Caps con circulante
+              de hoy (sep 2026).
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Compra</th>
+                    <th>INV</th>
+                    <th>TP1 20%</th>
+                    <th>TP2 30%</th>
+                    <th>TP3 50%</th>
+                    <th>Nota</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>ADA</td>
+                    <td>0,20–0,215 40% · 0,138–0,16 60%</td>
+                    <td>&lt; 0,13</td>
+                    <td>2,00</td>
+                    <td>3,09 ATH</td>
+                    <td>4,00</td>
+                    <td>TP1 no es el ATH (116 B)</td>
+                  </tr>
+                  <tr>
+                    <td>RAY</td>
+                    <td>1,10–1,25 70%</td>
+                    <td>—</td>
+                    <td>16,83 ATH</td>
+                    <td>25</td>
+                    <td>35</td>
+                    <td>4,5 B → 9,5 B</td>
+                  </tr>
+                  <tr>
+                    <td>ARB</td>
+                    <td>0,09–0,11 70%</td>
+                    <td>&lt; 0,07</td>
+                    <td>2,39 ATH</td>
+                    <td>3,20</td>
+                    <td>4,00</td>
+                    <td>Unlocks</td>
+                  </tr>
+                  <tr>
+                    <td>TAO</td>
+                    <td>180–200 70%</td>
+                    <td>—</td>
+                    <td>758 ATH</td>
+                    <td>1.400</td>
+                    <td>2.000</td>
+                    <td>FDV ~2×</td>
+                  </tr>
+                  <tr>
+                    <td>HBAR</td>
+                    <td>0,055–0,062 70%</td>
+                    <td>—</td>
+                    <td>0,57 ATH</td>
+                    <td>0,80</td>
+                    <td>1,00</td>
+                    <td>25 B → 44 B</td>
+                  </tr>
+                  <tr>
+                    <td>ASTER</td>
+                    <td>0,585–0,62 30% · 0,507 40% · 0,403 30%</td>
+                    <td>&lt; 0,39</td>
+                    <td>2,41 ATH px</td>
+                    <td>4,00</td>
+                    <td>5,50</td>
+                    <td>~34% unlocked</td>
+                  </tr>
+                  <tr>
+                    <td>AAVE</td>
+                    <td>90–110 70%</td>
+                    <td>&lt; 70</td>
+                    <td>662 ATH</td>
+                    <td>950</td>
+                    <td>1.200</td>
+                    <td>Empresa</td>
+                  </tr>
+                  <tr>
+                    <td>ONDO</td>
+                    <td>0,32–0,335 40% · 0,29–0,30 60%</td>
+                    <td>&lt; 0,20</td>
+                    <td>2,14 ATH</td>
+                    <td>3,20</td>
+                    <td>4,50</td>
+                    <td>~49% circ / FDV alto</td>
+                  </tr>
+                  <tr>
+                    <td>UNI</td>
+                    <td>4,80–5,20 70%</td>
+                    <td>&lt; 3,80</td>
+                    <td>44,92 ATH</td>
+                    <td>65</td>
+                    <td>80</td>
+                    <td>Fee switch</td>
+                  </tr>
+                  <tr>
+                    <td>ENA</td>
+                    <td>0,138–0,145 30% · 0,08–0,09 40% · 0,07 30%</td>
+                    <td>&lt; 0,065</td>
+                    <td>1,52 ATH</td>
+                    <td>2,20</td>
+                    <td>2,80</td>
+                    <td>Diluye a 15 B</td>
+                  </tr>
+                  <tr>
+                    <td>JUP</td>
+                    <td>0,20–0,22 40% · 0,16–0,17 60%</td>
+                    <td>&lt; 0,135</td>
+                    <td>2,00 ATH</td>
+                    <td>3,20</td>
+                    <td>4,50</td>
+                    <td>~49% circ</td>
+                  </tr>
+                  <tr>
+                    <td>AVAX</td>
+                    <td>7,00–7,50 30% · 6,10 40% · 5,68 30%</td>
+                    <td>&lt; 5,50</td>
+                    <td>145 ATH</td>
+                    <td>180</td>
+                    <td>220</td>
+                    <td>220 = 97 B, euforia L1</td>
+                  </tr>
+                  <tr>
+                    <td>LINK</td>
+                    <td>11,00–11,30 40% · 9,50–10,30 60%</td>
+                    <td>&lt; 6,90</td>
+                    <td>52,70 ATH</td>
+                    <td>80</td>
+                    <td>110</td>
+                    <td>No entrar en 11,55</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section>
+            <h2>Fuera del escáner</h2>
+            <ul>
+              <li>APT: compra 0,51–0,55. TP 19,92 / 30 / 40. No está en Binance USDT de esta lista.</li>
+              <li>AR: starter 2,55 · add 1,70 / 1,49. INV &lt; 1,40. TP 91 / 130 / 180. Fully circ.</li>
+              <li>XMR y ZEC: ya corrieron. No add.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Bitcoin (manual)</h2>
+            <p>
+              Semanal &lt; 76k: no llenar zona 1 de alts. Semanal &lt; 62k:
+              solo tramo pánico. Esta app no consulta BTC; si el mercado se
+              rompe, las cards en “compra” pueden ser trampa.
+            </p>
+          </section>
+          <section>
+            <h2>Pros</h2>
+            <ul>
+              <li>Precio escrito: no “comprar porque bajó un 20%”.</li>
+              <li>El semanal filtra ruido. INV es cierre, no wick.</li>
+              <li>El % ya está decidido: no improvisás en caliente.</li>
+              <li>Las ventas miran el bull entero, no el primer techo de 4 semanas.</li>
+              <li>El filtro de cap recorta objetivos imposibles (ADA 3,09, AVAX 220, ENA 1,52 con más circ).</li>
+              <li>En el celu es app (hoja + tabs). En PC, lista + gráfico.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Contras</h2>
+            <ul>
+              <li>No dice cuándo llega la zona. Podés esperar meses y no llenar.</li>
+              <li>Si el piso no se retestea, te quedás sin el add (el grueso).</li>
+              <li>“Este ciclo supera el ATH” es tesis, no garantía.</li>
+              <li>ASTER, ENA, ONDO, JUP, TAO diluyen: precio ATH ≠ ATH de valuación.</li>
+              <li>APT, AR, XMR, ZEC no aparecen en Zonas.</li>
+              <li>Sin filtro BTC. Spot de Binance puede fallar (CORS / red).</li>
+              <li>El cruce llega tarde: un dorado no compra zona 1; un death no vende el ATH.</li>
+              <li>Tokens nuevos (ASTER) pueden no tener SMA 200 semanal.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Lo más importante</h2>
+            <ul>
+              <li>Hoy suele haber 1–3 tokens en zona, y solo el tramo de esa zona. El resto se espera.</li>
+              <li>ADA 0,20–0,215 = 40%. AVAX 7,00–7,50 = 30% starter. ENA 0,14 = 30% starter. LINK falta ~2% a 11,30.</li>
+              <li>No all-in en un solo precio. No perseguir si se fue.</li>
+              <li>Sacar costo en el ATH (o techo de cap). El 80% vive para el máximo nuevo.</li>
+              <li>Gráfico: semanal log, con zonas y TPs pintados. SMA 50/200 confirman, no disparan.</li>
+              <li>Si BTC semanal pierde 76k, las compras de zona 1 se pausan aunque la card diga oro.</li>
+            </ul>
+          </section>
+        </article>
+      </div>
+
+      <nav class="tabbar">
+        <button type="button" id="tabZonas" aria-selected="true">Zonas</button>
+        <button type="button" id="tabTesis" aria-selected="false">Tesis</button>
+      </nav>
+    </div>
+    <script>
+      const TOKENS = [
+        {
+          ticker: "ADA",
+          symbol: "ADAUSDT",
+          digits: 4,
+          invalidation: 0.13,
+          zones: [
+            { label: "Compra", low: 0.2, high: 0.215, pct: 40 },
+            { label: "Add", low: 0.138, high: 0.16, pct: 60 },
+          ],
+          tps: [
+            { label: "TP1", price: 2 },
+            { label: "TP2", price: 3.09 },
+            { label: "TP3", price: 4 },
+          ],
+        },
+        {
+          ticker: "RAY",
+          symbol: "RAYUSDT",
+          digits: 3,
+          invalidation: null,
+          zones: [{ label: "Compra", low: 1.1, high: 1.25, pct: 70 }],
+          tps: [
+            { label: "TP1", price: 16.83 },
+            { label: "TP2", price: 25 },
+            { label: "TP3", price: 35 },
+          ],
+        },
+        {
+          ticker: "ARB",
+          symbol: "ARBUSDT",
+          digits: 4,
+          invalidation: 0.07,
+          zones: [{ label: "Compra", low: 0.09, high: 0.11, pct: 70 }],
+          tps: [
+            { label: "TP1", price: 2.39 },
+            { label: "TP2", price: 3.2 },
+            { label: "TP3", price: 4 },
+          ],
+        },
+        {
+          ticker: "TAO",
+          symbol: "TAOUSDT",
+          digits: 1,
+          invalidation: null,
+          zones: [{ label: "Compra", low: 180, high: 200, pct: 70 }],
+          tps: [
+            { label: "TP1", price: 758 },
+            { label: "TP2", price: 1400 },
+            { label: "TP3", price: 2000 },
+          ],
+        },
+        {
+          ticker: "HBAR",
+          symbol: "HBARUSDT",
+          digits: 5,
+          invalidation: null,
+          zones: [{ label: "Compra", low: 0.055, high: 0.062, pct: 70 }],
+          tps: [
+            { label: "TP1", price: 0.57 },
+            { label: "TP2", price: 0.8 },
+            { label: "TP3", price: 1 },
+          ],
+        },
+        {
+          ticker: "ASTER",
+          symbol: "ASTERUSDT",
+          digits: 3,
+          invalidation: 0.39,
+          zones: [
+            { label: "Compra", low: 0.585, high: 0.62, pct: 30 },
+            { label: "Add", low: 0.507, high: 0.507, pct: 40 },
+            { label: "Pánico", low: 0.403, high: 0.403, pct: 30 },
+          ],
+          tps: [
+            { label: "TP1", price: 2.41 },
+            { label: "TP2", price: 4 },
+            { label: "TP3", price: 5.5 },
+          ],
+        },
+        {
+          ticker: "AAVE",
+          symbol: "AAVEUSDT",
+          digits: 2,
+          invalidation: 70,
+          zones: [{ label: "Compra", low: 90, high: 110, pct: 70 }],
+          tps: [
+            { label: "TP1", price: 662 },
+            { label: "TP2", price: 950 },
+            { label: "TP3", price: 1200 },
+          ],
+        },
+        {
+          ticker: "ONDO",
+          symbol: "ONDOUSDT",
+          digits: 3,
+          invalidation: 0.2,
+          zones: [
+            { label: "Compra", low: 0.32, high: 0.335, pct: 40 },
+            { label: "Add", low: 0.29, high: 0.3, pct: 60 },
+          ],
+          tps: [
+            { label: "TP1", price: 2.14 },
+            { label: "TP2", price: 3.2 },
+            { label: "TP3", price: 4.5 },
+          ],
+        },
+        {
+          ticker: "UNI",
+          symbol: "UNIUSDT",
+          digits: 3,
+          invalidation: 3.8,
+          zones: [{ label: "Compra", low: 4.8, high: 5.2, pct: 70 }],
+          tps: [
+            { label: "TP1", price: 44.92 },
+            { label: "TP2", price: 65 },
+            { label: "TP3", price: 80 },
+          ],
+        },
+        {
+          ticker: "ENA",
+          symbol: "ENAUSDT",
+          digits: 4,
+          invalidation: 0.065,
+          zones: [
+            { label: "Starter", low: 0.138, high: 0.145, pct: 30 },
+            { label: "Add", low: 0.08, high: 0.09, pct: 40 },
+            { label: "Pánico", low: 0.07, high: 0.07, pct: 30 },
+          ],
+          tps: [
+            { label: "TP1", price: 1.52 },
+            { label: "TP2", price: 2.2 },
+            { label: "TP3", price: 2.8 },
+          ],
+        },
+        {
+          ticker: "JUP",
+          symbol: "JUPUSDT",
+          digits: 4,
+          invalidation: 0.135,
+          zones: [
+            { label: "Compra", low: 0.2, high: 0.22, pct: 40 },
+            { label: "Add", low: 0.16, high: 0.17, pct: 60 },
+          ],
+          tps: [
+            { label: "TP1", price: 2 },
+            { label: "TP2", price: 3.2 },
+            { label: "TP3", price: 4.5 },
+          ],
+        },
+        {
+          ticker: "AVAX",
+          symbol: "AVAXUSDT",
+          digits: 3,
+          invalidation: 5.5,
+          zones: [
+            { label: "Starter", low: 7.0, high: 7.5, pct: 30 },
+            { label: "Add", low: 6.1, high: 6.1, pct: 40 },
+            { label: "Pánico", low: 5.68, high: 5.68, pct: 30 },
+          ],
+          tps: [
+            { label: "TP1", price: 145 },
+            { label: "TP2", price: 180 },
+            { label: "TP3", price: 220 },
+          ],
+        },
+        {
+          ticker: "LINK",
+          symbol: "LINKUSDT",
+          digits: 3,
+          invalidation: 6.9,
+          zones: [
+            { label: "Compra", low: 11.0, high: 11.3, pct: 40 },
+            { label: "Add", low: 9.5, high: 10.3, pct: 60 },
+          ],
+          tps: [
+            { label: "TP1", price: 52.7 },
+            { label: "TP2", price: 80 },
+            { label: "TP3", price: 110 },
+          ],
+        },
+      ];
+
+      const POINT_PAD = 0.004;
+      const SMA_FAST = 50;
+      const SMA_SLOW = 200;
+      const PLAN_COLORS = {
+        buy: "#d4b46a",
+        inv: "#c45c4a",
+        tp1: "#ffa726",
+        tp2: "#ec407a",
+        tp3: "#ab47bc",
+        sma50: "#7ec8e3",
+        sma200: "#9aa3b5",
+      };
+      let rows = [];
+      let selected = null;
+      let chartApi = null;
+      let chartGen = 0;
+
+      function fmt(n, digits) {
+        return n.toLocaleString("es-AR", {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
+        });
+      }
+
+      function rangeText(zone, digits) {
+        if (zone.low === zone.high) return fmt(zone.low, digits);
+        return fmt(zone.low, digits) + "–" + fmt(zone.high, digits);
+      }
+
+      function dropPct(spot, target) {
+        return ((spot - target) / spot) * 100;
+      }
+
+      function inBand(spot, zone) {
+        const pad = zone.low === zone.high ? Math.max(zone.low * POINT_PAD, 1e-8) : 0;
+        return spot >= zone.low - pad && spot <= zone.high + pad;
+      }
+
+      function evaluate(token, spot) {
+        if (token.invalidation != null && spot < token.invalidation) {
+          return {
+            status: "dead",
+            badge: "Invalidado",
+            fill: "0%",
+            detail: "Debajo de " + fmt(token.invalidation, token.digits) + ". No promediar.",
+          };
+        }
+        for (const zone of token.zones) {
+          if (inBand(spot, zone)) {
+            return {
+              status: "buy",
+              badge: "Compra",
+              fill: "Llenar " + zone.pct + "%",
+              detail: zone.label + " " + rangeText(zone, token.digits) + ". Solo ese tramo.",
+              active: zone,
+            };
+          }
+        }
+        const next = token.zones.find((zone) => spot > zone.high);
+        if (next) {
+          return {
+            status: "wait",
+            badge: "Esperar",
+            fill: "Falta −" + dropPct(spot, next.high).toFixed(1) + "%",
+            detail: "Próxima compra " + rangeText(next, token.digits) + " (" + next.pct + "%).",
+          };
+        }
+        const floor = token.zones[token.zones.length - 1];
+        return {
+          status: "wait",
+          badge: "Debajo",
+          fill: "0% ahora",
+          detail: "Perforó " + fmt(floor.low, token.digits) + ". No cazar.",
+        };
+      }
+
+      function isDesktop() {
+        return window.matchMedia("(min-width: 960px)").matches;
+      }
+
+      function utcDay(ms) {
+        const d = new Date(ms);
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(d.getUTCDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+      }
+
+      function fmtDate(time) {
+        const d = typeof time === "string" ? new Date(time + "T00:00:00Z") : new Date(time * 1000);
+        return d.toLocaleDateString("es-AR", { month: "short", year: "numeric" });
+      }
+
+      function klinesToCandles(klines) {
+        return klines.map((row) => ({
+          time: utcDay(row[0]),
+          open: Number(row[1]),
+          high: Number(row[2]),
+          low: Number(row[3]),
+          close: Number(row[4]),
+        }));
+      }
+
+      function smaLine(candles, period) {
+        if (candles.length < period) return [];
+        const out = [];
+        let sum = 0;
+        for (let i = 0; i < candles.length; i += 1) {
+          sum += candles[i].close;
+          if (i >= period) sum -= candles[i - period].close;
+          if (i >= period - 1) {
+            out.push({ time: candles[i].time, value: sum / period });
+          }
+        }
+        return out;
+      }
+
+      function alignedPairs(fast, slow) {
+        const slowByTime = new Map(slow.map((p) => [p.time, p.value]));
+        const pairs = [];
+        for (const p of fast) {
+          const slowValue = slowByTime.get(p.time);
+          if (slowValue == null) continue;
+          pairs.push({ time: p.time, fast: p.value, slow: slowValue });
+        }
+        return pairs;
+      }
+
+      function crossEvents(fast, slow) {
+        const pairs = alignedPairs(fast, slow);
+        const events = [];
+        for (let i = 1; i < pairs.length; i += 1) {
+          const prev = pairs[i - 1].fast - pairs[i - 1].slow;
+          const cur = pairs[i].fast - pairs[i].slow;
+          if (prev <= 0 && cur > 0) {
+            events.push({ type: "golden", time: pairs[i].time });
+          } else if (prev >= 0 && cur < 0) {
+            events.push({ type: "death", time: pairs[i].time });
+          }
+        }
+        const last = pairs[pairs.length - 1];
+        if (!last) {
+          return { regime: "none", events, lastEvent: null };
+        }
+        return {
+          regime: last.fast > last.slow ? "golden" : "death",
+          events,
+          lastEvent: events[events.length - 1] || null,
+        };
+      }
+
+      function crossChip(label, analysis) {
+        const chip = document.createElement("div");
+        if (analysis.regime === "none") {
+          chip.className = "ta-chip";
+          chip.innerHTML = "<b>" + label + "</b>Sin SMA 200 (poca historia)";
+          return chip;
+        }
+        const isGolden = analysis.regime === "golden";
+        chip.className = "ta-chip " + (isGolden ? "golden" : "death");
+        const name = isGolden ? "Cruce dorado" : "Cruce de la muerte";
+        const when = analysis.lastEvent ? " desde " + fmtDate(analysis.lastEvent.time) : " · SMA50 vs 200";
+        chip.innerHTML = "<b>" + label + " · confirma</b>" + name + when;
+        return chip;
+      }
+
+      async function fetchKlines(symbol, interval, limit) {
+        const url =
+          "https://api.binance.com/api/v3/klines?symbol=" +
+          encodeURIComponent(symbol) +
+          "&interval=" +
+          interval +
+          "&limit=" +
+          String(limit);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Klines " + res.status);
+        return klinesToCandles(await res.json());
+      }
+
+      function destroyChart() {
+        if (chartApi) {
+          chartApi.remove();
+          chartApi = null;
+        }
+        const host = document.getElementById("chartHost");
+        if (host) host.replaceChildren();
+      }
+
+      function addPlanLines(series, token) {
+        const { LineStyle } = LightweightCharts;
+        const seen = new Set();
+        for (const zone of token.zones) {
+          const levels = zone.low === zone.high ? [zone.low] : [zone.low, zone.high];
+          for (const price of levels) {
+            const key = String(price);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            series.createPriceLine({
+              price,
+              color: PLAN_COLORS.buy,
+              lineWidth: 1,
+              lineStyle: LineStyle.Solid,
+              axisLabelVisible: true,
+              title: zone.label,
+            });
+          }
+        }
+        if (token.invalidation != null) {
+          series.createPriceLine({
+            price: token.invalidation,
+            color: PLAN_COLORS.inv,
+            lineWidth: 1,
+            lineStyle: LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: "INV",
+          });
+        }
+        const tpColor = { TP1: PLAN_COLORS.tp1, TP2: PLAN_COLORS.tp2, TP3: PLAN_COLORS.tp3 };
+        for (const tp of token.tps) {
+          series.createPriceLine({
+            price: tp.price,
+            color: tpColor[tp.label] || PLAN_COLORS.tp1,
+            lineWidth: 1,
+            lineStyle: LineStyle.Dotted,
+            axisLabelVisible: true,
+            title: tp.label,
+          });
+        }
+      }
+
+      function drawWeeklyChart(token, weekly, weeklyCross) {
+        const host = document.getElementById("chartHost");
+        destroyChart();
+        const {
+          createChart,
+          CandlestickSeries,
+          LineSeries,
+          PriceScaleMode,
+          createSeriesMarkers,
+        } = LightweightCharts;
+        const minMove = Math.pow(10, -token.digits);
+        chartApi = createChart(host, {
+          autoSize: true,
+          layout: {
+            background: { color: "#0b0d14" },
+            textColor: "#8d8678",
+            fontFamily: "IBM Plex Mono, ui-monospace, monospace",
+          },
+          grid: {
+            vertLines: { color: "#2c3140" },
+            horzLines: { color: "#2c3140" },
+          },
+          rightPriceScale: {
+            borderColor: "#2c3140",
+            mode: PriceScaleMode.Logarithmic,
+          },
+          timeScale: {
+            borderColor: "#2c3140",
+            rightOffset: 6,
+          },
+          crosshair: {
+            vertLine: { color: "#5c584f" },
+            horzLine: { color: "#5c584f" },
+          },
+        });
+        const candles = chartApi.addSeries(CandlestickSeries, {
+          upColor: "#d4b46a",
+          downColor: "#c45c4a",
+          wickUpColor: "#d4b46a",
+          wickDownColor: "#c45c4a",
+          borderVisible: false,
+          lastValueVisible: true,
+          priceLineVisible: true,
+          priceFormat: { type: "price", precision: token.digits, minMove },
+        });
+        candles.setData(weekly);
+        addPlanLines(candles, token);
+
+        const sma50 = smaLine(weekly, SMA_FAST);
+        const sma200 = smaLine(weekly, SMA_SLOW);
+        if (sma50.length) {
+          chartApi
+            .addSeries(LineSeries, {
+              color: PLAN_COLORS.sma50,
+              lineWidth: 2,
+              lastValueVisible: true,
+              priceLineVisible: false,
+              title: "SMA 50",
+            })
+            .setData(sma50);
+        }
+        if (sma200.length) {
+          chartApi
+            .addSeries(LineSeries, {
+              color: PLAN_COLORS.sma200,
+              lineWidth: 2,
+              lastValueVisible: true,
+              priceLineVisible: false,
+              title: "SMA 200",
+            })
+            .setData(sma200);
+        }
+
+        const markers = weeklyCross.events.slice(-6).map((event) => ({
+          time: event.time,
+          position: event.type === "golden" ? "belowBar" : "aboveBar",
+          color: event.type === "golden" ? PLAN_COLORS.buy : PLAN_COLORS.inv,
+          shape: event.type === "golden" ? "arrowUp" : "arrowDown",
+          text: event.type === "golden" ? "Dorado" : "Muerte",
+        }));
+        if (markers.length && typeof createSeriesMarkers === "function") {
+          createSeriesMarkers(candles, markers);
+        }
+        requestAnimationFrame(() => {
+          if (chartApi) chartApi.timeScale().fitContent();
+        });
+      }
+
+      function renderTaBar(dailyCross, weeklyCross) {
+        const bar = document.getElementById("taBar");
+        bar.replaceChildren();
+        bar.append(
+          crossChip("Diario SMA 50/200", dailyCross),
+          crossChip("Semanal SMA 50/200", weeklyCross)
+        );
+        const legend = document.createElement("div");
+        legend.className = "ta-legend";
+        legend.textContent =
+          "Oro compra · rojo INV · naranja TP1 · magenta TP2 · violeta TP3 · celeste SMA50 · gris SMA200";
+        bar.append(legend);
+      }
+
+      function closeSheet() {
+        selected = null;
+        chartGen += 1;
+        const sheet = document.getElementById("sheet");
+        sheet.classList.remove("open");
+        if (!isDesktop()) sheet.hidden = true;
+        destroyChart();
+        document.getElementById("taBar").replaceChildren();
+        document.querySelectorAll(".card.open").forEach((el) => el.classList.remove("open"));
+        document.body.style.overflow = "";
+      }
+
+      async function openChart(row) {
+        selected = row.ticker;
+        const gen = ++chartGen;
+        const sheet = document.getElementById("sheet");
+        sheet.hidden = false;
+        sheet.classList.add("open");
+        document.getElementById("sheetTitle").textContent = row.ticker + " USDT · 1W";
+        const buys = row.token.zones
+          .map((z) => z.label + " " + rangeText(z, row.digits) + " · " + z.pct + "%")
+          .join(" · ");
+        const tps = row.token.tps
+          .map((tp) => tp.label + " " + fmt(tp.price, row.digits))
+          .join(" · ");
+        document.getElementById("sheetMeta").textContent =
+          "Spot " +
+          fmt(row.spot, row.digits) +
+          " · " +
+          row.fill +
+          " · " +
+          buys +
+          " · " +
+          tps +
+          " · log";
+        document.getElementById("taBar").replaceChildren();
+        const loading = document.createElement("div");
+        loading.className = "ta-chip";
+        loading.textContent = "Cargando velas y medias…";
+        document.getElementById("taBar").append(loading);
+        document.querySelectorAll(".card.open").forEach((el) => el.classList.remove("open"));
+        const card = document.querySelector('[data-ticker="' + row.ticker + '"]');
+        if (card) card.classList.add("open");
+        if (!isDesktop()) document.body.style.overflow = "hidden";
+
+        try {
+          if (typeof LightweightCharts === "undefined") {
+            throw new Error("No cargó Lightweight Charts");
+          }
+          const [weekly, daily] = await Promise.all([
+            fetchKlines(row.token.symbol, "1w", 1000),
+            fetchKlines(row.token.symbol, "1d", 1000),
+          ]);
+          if (gen !== chartGen) return;
+          const weeklySma50 = smaLine(weekly, SMA_FAST);
+          const weeklySma200 = smaLine(weekly, SMA_SLOW);
+          const dailySma50 = smaLine(daily, SMA_FAST);
+          const dailySma200 = smaLine(daily, SMA_SLOW);
+          const weeklyCross = crossEvents(weeklySma50, weeklySma200);
+          const dailyCross = crossEvents(dailySma50, dailySma200);
+          renderTaBar(dailyCross, weeklyCross);
+          drawWeeklyChart(row.token, weekly, weeklyCross);
+        } catch (e) {
+          if (gen !== chartGen) return;
+          const bar = document.getElementById("taBar");
+          bar.replaceChildren();
+          const err = document.createElement("div");
+          err.className = "ta-chip death";
+          err.textContent =
+            "No pude armar el gráfico (" + (e && e.message ? e.message : "red") + ").";
+          bar.append(err);
+        }
+      }
+
+      function render() {
+        const list = document.getElementById("list");
+        list.replaceChildren();
+        let nBuy = 0;
+        let nWait = 0;
+        let nDead = 0;
+
+        for (const row of rows) {
+          if (row.status === "buy") nBuy += 1;
+          else if (row.status === "dead") nDead += 1;
+          else nWait += 1;
+
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "card " + row.status + (selected === row.ticker ? " open" : "");
+          card.dataset.ticker = row.ticker;
+          card.setAttribute("aria-label", row.ticker + ", abrir gráfico semanal");
+
+          const top = document.createElement("div");
+          top.className = "card-top";
+          top.innerHTML =
+            '<span class="ticker">' +
+            row.ticker +
+            '</span><span class="spot">' +
+            fmt(row.spot, row.digits) +
+            "</span>";
+
+          const status = document.createElement("div");
+          status.className = "status-row";
+          status.innerHTML = "<span>" + row.badge + "</span><span>" + row.fill + "</span>";
+
+          const prices = document.createElement("div");
+          prices.className = "prices";
+          for (const zone of row.token.zones) {
+            const chip = document.createElement("span");
+            chip.className = "chip" + (row.active === zone ? " active" : "");
+            chip.innerHTML =
+              "<b>" +
+              zone.label +
+              " · " +
+              zone.pct +
+              "%</b>" +
+              rangeText(zone, row.digits);
+            prices.append(chip);
+          }
+
+          const hint = document.createElement("div");
+          hint.className = "hint";
+          hint.textContent = row.detail + " Tocá para el semanal.";
+
+          card.append(top, status, prices, hint);
+          card.addEventListener("click", () => openChart(row));
+          list.append(card);
+        }
+
+        document.getElementById("nBuy").textContent = String(nBuy);
+        document.getElementById("nWait").textContent = String(nWait);
+        document.getElementById("nDead").textContent = String(nDead);
+      }
+
+      async function scan() {
+        const btn = document.getElementById("scan");
+        const err = document.getElementById("err");
+        err.hidden = true;
+        btn.disabled = true;
+        try {
+          const symbols = TOKENS.map((t) => t.symbol);
+          const url =
+            "https://api.binance.com/api/v3/ticker/price?symbols=" +
+            encodeURIComponent(JSON.stringify(symbols));
+          const res = await fetch(url);
+          if (!res.ok) throw new Error("Binance " + res.status);
+          const data = await res.json();
+          const bySymbol = {};
+          for (const item of data) bySymbol[item.symbol] = Number(item.price);
+
+          rows = TOKENS.map((token) => {
+            const spot = bySymbol[token.symbol];
+            if (!Number.isFinite(spot)) {
+              return {
+                ticker: token.ticker,
+                spot: 0,
+                digits: token.digits,
+                token,
+                status: "wait",
+                badge: "Sin precio",
+                fill: "—",
+                detail: "Binance no devolvió " + token.symbol,
+              };
+            }
+            return {
+              ticker: token.ticker,
+              spot,
+              digits: token.digits,
+              token,
+              ...evaluate(token, spot),
+            };
+          });
+
+          rows.sort((a, b) => {
+            const rank = { buy: 0, wait: 1, dead: 2 };
+            return (rank[a.status] ?? 9) - (rank[b.status] ?? 9);
+          });
+          render();
+          document.getElementById("stamp").textContent =
+            "Binance " +
+            new Date().toLocaleString("es-AR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+        } catch (e) {
+          err.hidden = false;
+          err.textContent =
+            "No pude leer Binance (" +
+            (e && e.message ? e.message : "red") +
+            ").";
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      function showView(id) {
+        document.getElementById("zonas").classList.toggle("active", id === "zonas");
+        document.getElementById("tesis").classList.toggle("active", id === "tesis");
+        document.getElementById("tabZonas").setAttribute("aria-selected", String(id === "zonas"));
+        document.getElementById("tabTesis").setAttribute("aria-selected", String(id === "tesis"));
+        if (id === "tesis") closeSheet();
+      }
+
+      document.getElementById("scan").addEventListener("click", scan);
+      document.getElementById("close").addEventListener("click", closeSheet);
+      document.getElementById("backdrop").addEventListener("click", closeSheet);
+      document.getElementById("tabZonas").addEventListener("click", () => showView("zonas"));
+      document.getElementById("tabTesis").addEventListener("click", () => showView("tesis"));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSheet();
+      });
+      window.addEventListener("resize", () => {
+        const sheet = document.getElementById("sheet");
+        if (isDesktop()) {
+          sheet.hidden = false;
+          document.body.style.overflow = "";
+        } else if (!selected) {
+          sheet.hidden = true;
+        }
+      });
+
+      if (isDesktop()) {
+        document.getElementById("sheet").hidden = false;
+      }
+      scan();
+    </script>
+  </body>
+</html>

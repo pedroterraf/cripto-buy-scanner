@@ -1,0 +1,9 @@
+{
+  "name": "Zonas de compra",
+  "short_name": "Zonas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101218",
+  "theme_color": "#101218",
+  "lang": "es"
+}
