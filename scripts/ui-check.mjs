@@ -8,7 +8,13 @@ const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844, touch: true, mobile: true },
 ];
 
+function fail(viewport, message) {
+  throw new Error(viewport + ": " + message);
+}
+
 async function runViewport(browser, viewport) {
+  const errors = [];
+  const failed = [];
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     hasTouch: viewport.touch,
@@ -16,19 +22,74 @@ async function runViewport(browser, viewport) {
     locale: "es-AR",
   });
   const page = await context.newPage();
-  await page.goto(BASE, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: /ADA, abrir gráfico semanal/ }).waitFor({
-    timeout: 20000,
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errors.push(msg.text());
   });
+
+  await page.goto(BASE, { waitUntil: "domcontentloaded" });
+  const chartOpen = page.getByRole("button", { name: /abrir gráfico semanal/ });
+  await chartOpen.first().waitFor({ timeout: 25000 });
+  await page.getByRole("button", { name: "Escanear" }).waitFor();
+
+  const info = page.getByRole("button", { name: "AVAX, abrir fundamentos" });
+  const infoBox = await info.boundingBox();
+  if (!infoBox || infoBox.width < 44 || infoBox.height < 44) {
+    fail(viewport.name, "info button smaller than 44px");
+  }
+
+  const keyboard = await page.evaluate(() => {
+    const scan = document.querySelector(".scan");
+    const infoBtn = document.querySelector(".dossier-btn");
+    const floor = window.innerHeight - 300;
+    const scanBox = scan?.getBoundingClientRect();
+    const infoRect = infoBtn?.getBoundingClientRect();
+    return {
+      scanAbove: scanBox ? scanBox.bottom < floor : true,
+      infoAbove: infoRect ? infoRect.bottom < floor : true,
+    };
+  });
+  if (viewport.touch && (!keyboard.scanAbove || !keyboard.infoAbove)) {
+    fail(viewport.name, "scan or info buried under simulated keyboard");
+  }
+
   await page.screenshot({
     path: `scripts/shots/${viewport.name}-list.png`,
     scale: "css",
   });
 
-  await page.getByRole("button", { name: /ADA, abrir gráfico semanal/ }).click();
+  await info.click();
+  await page.getByRole("heading", { name: "Proyecto" }).waitFor({ timeout: 8000 });
+  if (await page.getByTestId("chart-host").count()) {
+    fail(viewport.name, "info button opened the chart");
+  }
+  await page.getByText("Entraste por AVAX").waitFor();
+  await page.getByRole("heading", { name: "Por qué existe esto" }).waitFor();
+  await page.getByRole("heading", { name: "Conclusión" }).waitFor();
+  await page.getByText(/17 sep 2027/).first().waitFor();
+  await page.getByText(/Máximo fijo 50 B/).waitFor();
+  await page.getByText(/Net-Zero Emissions/).waitFor();
+  await page.getByText(/18 ene 2027/).first().waitFor();
+  const back = page.getByRole("button", { name: "Volver a zonas" });
+  const backBox = await back.boundingBox();
+  if (!backBox || backBox.height < 44) {
+    fail(viewport.name, "back button too small");
+  }
+  if (viewport.touch && backBox.bottom > viewport.height - 300) {
+    fail(viewport.name, "back button under simulated keyboard");
+  }
+  await page.screenshot({
+    path: `scripts/shots/${viewport.name}-dossier.png`,
+    scale: "css",
+  });
+
+  await back.click();
+  await page.getByRole("heading", { name: "Zonas de compra" }).waitFor({ timeout: 8000 });
+
+  await page.getByRole("button", { name: /ADA, .*abrir gráfico semanal/ }).click();
   await page.getByTestId("chart-host").waitFor({ timeout: 15000 });
   await page.getByText(/Cruce/).first().waitFor({ timeout: 20000 });
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(600);
 
   const metrics = await page.evaluate(() => {
     const host = document.querySelector("[data-testid='chart-host']");
@@ -46,52 +107,43 @@ async function runViewport(browser, viewport) {
       closeAboveKeyboard: closeBox ? closeBox.bottom < keyboardFloor : true,
     };
   });
-
   await page.screenshot({
     path: `scripts/shots/${viewport.name}-chart.png`,
     scale: "css",
   });
-
   if (metrics.hostH < 200 || metrics.canvasH < 160) {
-    throw new Error(
-      `${viewport.name}: chart too small host=${metrics.hostH} canvas=${metrics.canvasH}`,
+    fail(
+      viewport.name,
+      "chart too small host=" + metrics.hostH + " canvas=" + metrics.canvasH,
     );
   }
 
   await page.getByRole("button", { name: "Daily" }).click();
   await page.getByRole("heading", { name: /USDT · 1D/ }).waitFor({ timeout: 10000 });
-  await page.waitForTimeout(600);
-  const dailyTitle = await page.getByRole("heading", { name: /USDT · 1D/ }).textContent();
-  await page.screenshot({
-    path: `scripts/shots/${viewport.name}-chart-daily.png`,
-    scale: "css",
-  });
-  if (!dailyTitle?.includes("1D")) {
-    throw new Error(`${viewport.name}: daily title missing`);
-  }
-
   await page.getByRole("button", { name: "Weekly" }).click();
   await page.getByRole("heading", { name: /USDT · 1W/ }).waitFor({ timeout: 10000 });
-  await page.waitForTimeout(400);
 
   if (viewport.touch && !metrics.closeAboveKeyboard) {
-    throw new Error(`${viewport.name}: Cerrar queda bajo el teclado simulado`);
+    fail(viewport.name, "Cerrar queda bajo el teclado simulado");
   }
-
   if (viewport.touch) {
     await page.getByRole("button", { name: "Cerrar", exact: true }).click();
+    await page.getByRole("heading", { name: "Zonas de compra" }).waitFor();
   }
 
-  await page.getByRole("button", { name: "Tesis" }).click();
-  await page.getByRole("heading", { name: "Qué trata este proyecto" }).waitFor();
-  await page.screenshot({
-    path: `scripts/shots/${viewport.name}-tesis.png`,
-    scale: "css",
-  });
-  await page.getByRole("button", { name: "Zonas" }).click();
+  await page.getByRole("button", { name: "Proyecto", exact: true }).click();
+  await page.getByRole("heading", { name: "Por qué existe esto" }).waitFor();
+  await page.getByRole("button", { name: "Zonas", exact: true }).click();
+  await page.getByRole("heading", { name: "Zonas de compra" }).waitFor();
+
+  const noisy = errors.filter(
+    (text) => !/Failed to load resource|net::ERR/i.test(text),
+  );
+  if (noisy.length) failed.push(...noisy);
 
   await context.close();
-  return { viewport: viewport.name, ...metrics };
+  if (failed.length) fail(viewport.name, failed.join(" | "));
+  return { viewport: viewport.name, ...metrics, infoW: Math.round(infoBox.width) };
 }
 
 async function main() {

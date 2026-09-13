@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChartPanel } from "@/components/ChartPanel";
 import { MobileSheet } from "@/components/MobileSheet";
-import { ThesisView } from "@/components/ThesisView";
+import { ProjectView } from "@/components/ProjectView";
 import { TokenCard } from "@/components/TokenCard";
 import { fetchSpotPrices } from "@/lib/binance";
 import { DESKTOP_MIN_PX, SCAN_INTERVAL_MS } from "@/lib/constants";
@@ -26,6 +26,7 @@ function useDesktop(): boolean {
 export function BuyScanner() {
   const desktop = useDesktop();
   const [view, setView] = useState<"zonas" | "tesis">("zonas");
+  const [dossierTicker, setDossierTicker] = useState<string | null>(null);
   const [rows, setRows] = useState<ScanRow[]>([]);
   const [selected, setSelected] = useState<ScanRow | null>(null);
   const [sheetRow, setSheetRow] = useState<ScanRow | null>(null);
@@ -96,11 +97,17 @@ export function BuyScanner() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelected(null);
+      if (event.key !== "Escape") return;
+      if (view === "tesis") {
+        setView("zonas");
+        setDossierTicker(null);
+        return;
+      }
+      setSelected(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, []);
+  }, [view]);
 
   const nSell = rows.filter((row) => row.status === "sell").length;
   const nBuy = rows.filter((row) => row.status === "buy").length;
@@ -108,24 +115,37 @@ export function BuyScanner() {
   const nDead = rows.filter((row) => row.status === "dead").length;
   const sheetOpen = Boolean(selected) && !desktop && view === "zonas";
 
+  function openDossier(ticker?: string): void {
+    setDossierTicker(ticker ?? null);
+    setView("tesis");
+    if (!desktop) setSelected(null);
+  }
+
+  function closeDossier(): void {
+    setView("zonas");
+    setDossierTicker(null);
+  }
+
   return (
     <div className="app">
-      <header className="topbar">
-        <div>
-          <h1>Zonas de compra</h1>
-          <div className="stamp">{stamp}</div>
-        </div>
-        <button
-          className={`scan${scanning ? " scanning" : ""}`}
-          type="button"
-          disabled={scanning}
-          aria-busy={scanning}
-          onClick={() => void scan()}
-        >
-          <span className="scan-label">Escanear</span>
-          <span className="scan-loader" aria-hidden="true" />
-        </button>
-      </header>
+      {view === "zonas" ? (
+        <header className="topbar">
+          <div>
+            <h1>Zonas de compra</h1>
+            <div className="stamp">{stamp}</div>
+          </div>
+          <button
+            className={`scan${scanning ? " scanning" : ""}`}
+            type="button"
+            disabled={scanning}
+            aria-busy={scanning}
+            onClick={() => void scan()}
+          >
+            <span className="scan-label">Escanear</span>
+            <span className="scan-loader" aria-hidden="true" />
+          </button>
+        </header>
+      ) : null}
 
       {view === "zonas" ? (
         <div className="workspace">
@@ -155,6 +175,7 @@ export function BuyScanner() {
                   row={row}
                   selected={selected?.ticker === row.ticker}
                   onSelect={setSelected}
+                  onOpenDossier={openDossier}
                 />
               ))}
             </div>
@@ -166,7 +187,7 @@ export function BuyScanner() {
           ) : null}
         </div>
       ) : (
-        <ThesisView />
+        <ProjectView focusTicker={dossierTicker} onBack={closeDossier} />
       )}
 
       {desktop ? null : (
@@ -183,19 +204,16 @@ export function BuyScanner() {
         <button
           type="button"
           aria-selected={view === "zonas"}
-          onClick={() => setView("zonas")}
+          onClick={() => closeDossier()}
         >
           Zonas
         </button>
         <button
           type="button"
           aria-selected={view === "tesis"}
-          onClick={() => {
-            setView("tesis");
-            if (!desktop) setSelected(null);
-          }}
+          onClick={() => openDossier()}
         >
-          Tesis
+          Proyecto
         </button>
       </nav>
     </div>

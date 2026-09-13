@@ -89,7 +89,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP2", price: 4 },
       { label: "TP3", price: 5.5 },
     ],
-    note: "~34% unlocked",
+    note: "Team cliff → 17 sep 2027 (atraso 12 m). Airdrop ~80 meses.",
     cycleFit: 2,
   },
   {

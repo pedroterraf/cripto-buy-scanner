@@ -186,19 +186,34 @@ button {
 }
 
 .card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   text-align: left;
   background: var(--panel);
   border: 1px solid var(--rule);
   color: inherit;
-  padding: 14px 14px 12px;
+  padding: 0;
   margin: 0 0 8px;
   min-height: 44px;
 }
 
-.card:active {
-  transform: scale(0.99);
+.card-main {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 14px 14px 4px;
+}
+
+.card:active .card-main {
+  transform: none;
+}
+
+.card-main:active {
+  transform: scale(0.995);
 }
 
 .card.buy {
@@ -336,9 +351,36 @@ button {
 }
 
 .hint {
-  margin-top: 8px;
+  margin: 0;
   color: var(--faint);
   font-size: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 8px 14px;
+}
+
+.dossier-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--gold);
+  background: var(--gold-dim);
+  color: var(--gold);
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1;
+}
+
+.dossier-btn:active {
+  transform: scale(0.94);
 }
 
 .err {
@@ -627,6 +669,135 @@ button {
   user-select: none;
 }
 
+.project-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  animation: project-in 420ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.project-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(10px + var(--safe-top)) 12px 10px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--panel);
+  flex-shrink: 0;
+}
+
+.project-bar h1 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.back {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  font-size: 22px;
+}
+
+.back:active {
+  transform: scale(0.94);
+}
+
+.project-copy {
+  scroll-padding-top: 12px;
+  margin: 0;
+  max-width: 760px;
+}
+
+.dossier-spot {
+  border: 1px solid var(--gold);
+  background: var(--gold-dim);
+  padding: 14px 14px 12px;
+}
+
+.dossier-kicker {
+  margin: 0 0 6px;
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dossier-jump {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.dossier-card {
+  margin-top: 14px;
+  padding: 12px 12px 10px;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  scroll-margin-top: 12px;
+}
+
+.dossier-card.active {
+  border-color: var(--gold);
+}
+
+.dossier-card h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dossier-card p {
+  margin: 0 0 8px;
+}
+
+.dossier-card b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.dossier-plan {
+  color: var(--faint) !important;
+  font-size: 11px !important;
+}
+
+@keyframes project-in {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  @keyframes project-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
 .grab {
   width: 36px;
   height: 4px;
@@ -657,7 +828,9 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card:active {
+  .card-main:active,
+  .dossier-btn:active,
+  .back:active {
     transform: none;
   }
 
@@ -669,5 +842,9 @@ button {
 
   .panel {
     will-change: auto;
+  }
+
+  .project-view {
+    animation: none;
   }
 }

@@ -9,59 +9,74 @@ interface TokenCardProps {
   row: ScanRow;
   selected: boolean;
   onSelect: (row: ScanRow) => void;
+  onOpenDossier: (ticker: string) => void;
 }
 
-export function TokenCard({ row, selected, onSelect }: TokenCardProps) {
+export function TokenCard({ row, selected, onSelect, onOpenDossier }: TokenCardProps) {
   const sellFinal = row.sellLevel === "TP3";
   return (
-    <button
-      type="button"
+    <article
       className={`card ${row.status}${sellFinal ? " sell-final" : ""}${selected ? " open" : ""}`}
       data-ticker={row.ticker}
-      aria-label={`${row.ticker}, ${row.stars} de 5, abrir gráfico semanal`}
-      onClick={() => onSelect(row)}
     >
-      <div className="card-top">
-        <span className="ticker">
-          {row.ticker}
-          <span className="stars" aria-hidden="true">
-            {STAR_SLOTS.map((slot) => (
-              <span key={slot} className={slot <= row.stars ? "on" : "off"}>
-                ★
-              </span>
-            ))}
+      <button
+        type="button"
+        className="card-main"
+        aria-label={`${row.ticker}, ${row.stars} de 5, abrir gráfico semanal`}
+        onClick={() => onSelect(row)}
+      >
+        <div className="card-top">
+          <span className="ticker">
+            {row.ticker}
+            <span className="stars" aria-hidden="true">
+              {STAR_SLOTS.map((slot) => (
+                <span key={slot} className={slot <= row.stars ? "on" : "off"}>
+                  ★
+                </span>
+              ))}
+            </span>
           </span>
-        </span>
-        <span className="spot">{formatPrice(row.spot, row.digits)}</span>
+          <span className="spot">{formatPrice(row.spot, row.digits)}</span>
+        </div>
+        <div className="status-row">
+          <span>{row.badge}</span>
+          <span>{row.fill}</span>
+        </div>
+        <div className="prices">
+          {row.status === "sell"
+            ? row.token.tps.map((tp) => (
+                <span
+                  key={tp.label}
+                  className={`chip${row.sellLevel === tp.label ? " active" : ""}`}
+                >
+                  <b>{tp.label}</b>
+                  {formatPrice(tp.price, row.digits)}
+                </span>
+              ))
+            : row.token.zones.map((zone) => (
+                <span
+                  key={zone.label + zone.low}
+                  className={`chip${row.active === zone ? " active" : ""}`}
+                >
+                  <b>
+                    {zone.label} · {zone.pct}%
+                  </b>
+                  {formatZoneRange(zone, row.digits)}
+                </span>
+              ))}
+        </div>
+      </button>
+      <div className="card-foot">
+        <p className="hint">{row.detail} Tocá para el semanal.</p>
+        <button
+          type="button"
+          className="dossier-btn"
+          aria-label={`${row.ticker}, abrir fundamentos`}
+          onClick={() => onOpenDossier(row.ticker)}
+        >
+          <span aria-hidden="true">i</span>
+        </button>
       </div>
-      <div className="status-row">
-        <span>{row.badge}</span>
-        <span>{row.fill}</span>
-      </div>
-      <div className="prices">
-        {row.status === "sell"
-          ? row.token.tps.map((tp) => (
-              <span
-                key={tp.label}
-                className={`chip${row.sellLevel === tp.label ? " active" : ""}`}
-              >
-                <b>{tp.label}</b>
-                {formatPrice(tp.price, row.digits)}
-              </span>
-            ))
-          : row.token.zones.map((zone) => (
-              <span
-                key={zone.label + zone.low}
-                className={`chip${row.active === zone ? " active" : ""}`}
-              >
-                <b>
-                  {zone.label} · {zone.pct}%
-                </b>
-                {formatZoneRange(zone, row.digits)}
-              </span>
-            ))}
-      </div>
-      <div className="hint">{row.detail} Tocá para el semanal.</div>
-    </button>
+    </article>
   );
 }
