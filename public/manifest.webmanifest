@@ -5,5 +5,13 @@
   "display": "standalone",
   "background_color": "#101218",
   "theme_color": "#101218",
-  "lang": "es"
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }

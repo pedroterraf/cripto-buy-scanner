@@ -7,10 +7,18 @@ import {
   PriceScaleMode,
   type IChartApi,
   type ISeriesApi,
+  type ISeriesMarkersPluginApi,
+  type SeriesMarker,
+  type Time,
 } from "lightweight-charts";
 import { PLAN_COLORS, SMA_FAST, SMA_SLOW } from "@/lib/constants";
 import { smaLine } from "@/lib/sma";
 import type { Candle, ChartTimeframe, CrossAnalysis, TokenPlan } from "@/lib/types";
+
+export interface PlanChartHandle {
+  chart: IChartApi;
+  applyLiveBar: (candles: Candle[], cross: CrossAnalysis) => void;
+}
 
 function addPlanLines(series: ISeriesApi<"Candlestick">, token: TokenPlan): void {
   const seen = new Set<string>();
@@ -59,13 +67,27 @@ function addPlanLines(series: ISeriesApi<"Candlestick">, token: TokenPlan): void
   }
 }
 
+function crossMarkers(
+  cross: CrossAnalysis,
+  timeframe: ChartTimeframe,
+): SeriesMarker<Time>[] {
+  const keep = timeframe === "daily" ? 6 : 4;
+  return cross.events.slice(-keep).map((event) => ({
+    time: event.time as Time,
+    position: event.type === "golden" ? ("belowBar" as const) : ("aboveBar" as const),
+    color: event.type === "golden" ? PLAN_COLORS.buy : PLAN_COLORS.inv,
+    shape: event.type === "golden" ? ("arrowUp" as const) : ("arrowDown" as const),
+    text: event.type === "golden" ? "Dorado" : "Muerte",
+  }));
+}
+
 export function drawPlanChart(
   host: HTMLElement,
   token: TokenPlan,
   candles: Candle[],
   cross: CrossAnalysis,
   timeframe: ChartTimeframe,
-): IChartApi {
+): PlanChartHandle {
   const minMove = Math.pow(10, -token.digits);
   const chart = createChart(host, {
     autoSize: true,
@@ -106,41 +128,51 @@ export function drawPlanChart(
   candleSeries.setData(candles);
   addPlanLines(candleSeries, token);
 
-  const sma50 = smaLine(candles, SMA_FAST);
-  const sma200 = smaLine(candles, SMA_SLOW);
-  if (sma50.length) {
-    chart
-      .addSeries(LineSeries, {
-        color: PLAN_COLORS.sma50,
-        lineWidth: 2,
-        lastValueVisible: true,
-        priceLineVisible: false,
-        title: "SMA 50",
-      })
-      .setData(sma50);
+  const sma50Data = smaLine(candles, SMA_FAST);
+  const sma200Data = smaLine(candles, SMA_SLOW);
+  let sma50Series: ISeriesApi<"Line"> | null = null;
+  let sma200Series: ISeriesApi<"Line"> | null = null;
+  if (sma50Data.length) {
+    sma50Series = chart.addSeries(LineSeries, {
+      color: PLAN_COLORS.sma50,
+      lineWidth: 2,
+      lastValueVisible: true,
+      priceLineVisible: false,
+      title: "SMA 50",
+    });
+    sma50Series.setData(sma50Data);
   }
-  if (sma200.length) {
-    chart
-      .addSeries(LineSeries, {
-        color: PLAN_COLORS.sma200,
-        lineWidth: 2,
-        lastValueVisible: true,
-        priceLineVisible: false,
-        title: "SMA 200",
-      })
-      .setData(sma200);
+  if (sma200Data.length) {
+    sma200Series = chart.addSeries(LineSeries, {
+      color: PLAN_COLORS.sma200,
+      lineWidth: 2,
+      lastValueVisible: true,
+      priceLineVisible: false,
+      title: "SMA 200",
+    });
+    sma200Series.setData(sma200Data);
   }
 
-  const keep = timeframe === "daily" ? 6 : 4;
-  const markers = cross.events.slice(-keep).map((event) => ({
-    time: event.time,
-    position: event.type === "golden" ? ("belowBar" as const) : ("aboveBar" as const),
-    color: event.type === "golden" ? PLAN_COLORS.buy : PLAN_COLORS.inv,
-    shape: event.type === "golden" ? ("arrowUp" as const) : ("arrowDown" as const),
-    text: event.type === "golden" ? "Dorado" : "Muerte",
-  }));
-  if (markers.length) createSeriesMarkers(candleSeries, markers);
+  const markerApi: ISeriesMarkersPluginApi<Time> = createSeriesMarkers(
+    candleSeries,
+    crossMarkers(cross, timeframe),
+  );
 
   chart.timeScale().fitContent();
-  return chart;
+
+  return {
+    chart,
+    applyLiveBar(nextCandles, nextCross) {
+      const last = nextCandles[nextCandles.length - 1];
+      if (!last) return;
+      candleSeries.update(last);
+      const fast = smaLine(nextCandles, SMA_FAST);
+      const slow = smaLine(nextCandles, SMA_SLOW);
+      const lastFast = fast[fast.length - 1];
+      const lastSlow = slow[slow.length - 1];
+      if (sma50Series && lastFast) sma50Series.update(lastFast);
+      if (sma200Series && lastSlow) sma200Series.update(lastSlow);
+      markerApi.setMarkers(crossMarkers(nextCross, timeframe));
+    },
+  };
 }

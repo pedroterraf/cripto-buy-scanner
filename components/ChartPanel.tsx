@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { IChartApi } from "lightweight-charts";
 import { DAILY_KLINE_LIMIT, SMA_FAST, SMA_SLOW, WEEKLY_KLINE_LIMIT } from "@/lib/constants";
-import { fetchKlines } from "@/lib/binance";
-import { drawPlanChart } from "@/lib/draw-chart";
+import { fetchKlines, mergeCandle, subscribeKlines } from "@/lib/binance";
+import { drawPlanChart, type PlanChartHandle } from "@/lib/draw-chart";
 import { formatMonthYear, formatPrice, formatZoneRange } from "@/lib/format";
 import { crossEvents, smaLine } from "@/lib/sma";
 import type { Candle, ChartTimeframe, CrossAnalysis, ScanRow } from "@/lib/types";
@@ -28,7 +27,7 @@ function analyze(candles: Candle[]): CrossAnalysis {
 
 export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
+  const handleRef = useRef<PlanChartHandle | null>(null);
   const [timeframe, setTimeframe] = useState<ChartTimeframe>("weekly");
   const [weeklyCandles, setWeeklyCandles] = useState<Candle[] | null>(null);
   const [dailyCandles, setDailyCandles] = useState<Candle[] | null>(null);
@@ -36,6 +35,19 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
   const [weekly, setWeekly] = useState<CrossAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const ticker = row?.ticker ?? null;
+  const symbol = row?.token.symbol ?? null;
+  const token = row?.token ?? null;
+  const dataReady = Boolean(weeklyCandles && dailyCandles && weekly && daily);
+  const weeklyCandlesRef = useRef(weeklyCandles);
+  const dailyCandlesRef = useRef(dailyCandles);
+  const weeklyRef = useRef(weekly);
+  const dailyRef = useRef(daily);
+  weeklyCandlesRef.current = weeklyCandles;
+  dailyCandlesRef.current = dailyCandles;
+  weeklyRef.current = weekly;
+  dailyRef.current = daily;
 
   useEffect(() => {
     if (!row) {
@@ -80,13 +92,33 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
   }, [row]);
 
   useEffect(() => {
-    if (!row) {
-      chartRef.current?.remove();
-      chartRef.current = null;
+    if (!symbol) return;
+    return subscribeKlines(symbol, (interval, candle) => {
+      if (interval === "1w") {
+        setWeeklyCandles((prev) => (prev ? mergeCandle(prev, candle) : prev));
+      } else {
+        setDailyCandles((prev) => (prev ? mergeCandle(prev, candle) : prev));
+      }
+    });
+  }, [symbol]);
+
+  useEffect(() => {
+    if (weeklyCandles) setWeekly(analyze(weeklyCandles));
+  }, [weeklyCandles]);
+
+  useEffect(() => {
+    if (dailyCandles) setDaily(analyze(dailyCandles));
+  }, [dailyCandles]);
+
+  useEffect(() => {
+    if (!token || !dataReady) {
+      handleRef.current?.chart.remove();
+      handleRef.current = null;
       return;
     }
-    const candles = timeframe === "weekly" ? weeklyCandles : dailyCandles;
-    const cross = timeframe === "weekly" ? weekly : daily;
+    const candles =
+      timeframe === "weekly" ? weeklyCandlesRef.current : dailyCandlesRef.current;
+    const cross = timeframe === "weekly" ? weeklyRef.current : dailyRef.current;
     if (!candles || !cross) return;
     const host = hostRef.current;
     if (!host) return;
@@ -113,16 +145,23 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
 
     void waitForSize().then(() => {
       if (cancelled) return;
-      chartRef.current?.remove();
-      chartRef.current = drawPlanChart(host, row.token, candles, cross, timeframe);
+      handleRef.current?.chart.remove();
+      handleRef.current = drawPlanChart(host, token, candles, cross, timeframe);
     });
 
     return () => {
       cancelled = true;
-      chartRef.current?.remove();
-      chartRef.current = null;
+      handleRef.current?.chart.remove();
+      handleRef.current = null;
     };
-  }, [row, timeframe, weeklyCandles, dailyCandles, weekly, daily]);
+  }, [ticker, timeframe, dataReady, token]);
+
+  useEffect(() => {
+    const candles = timeframe === "weekly" ? weeklyCandles : dailyCandles;
+    const cross = timeframe === "weekly" ? weekly : daily;
+    if (!candles || !cross) return;
+    handleRef.current?.applyLiveBar(candles, cross);
+  }, [weeklyCandles, dailyCandles, weekly, daily, timeframe]);
 
   if (!row) {
     return (
@@ -136,6 +175,8 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
     .map((zone) => zone.label + " " + formatZoneRange(zone, row.digits) + " · " + zone.pct + "%")
     .join(" · ");
   const tfLabel = timeframe === "weekly" ? "1W" : "1D";
+  const liveClose = (timeframe === "weekly" ? weeklyCandles : dailyCandles)?.at(-1)?.close;
+  const spot = liveClose ?? row.spot;
 
   return (
     <div className="chart-pane" data-testid="chart-panel">
@@ -145,7 +186,7 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
             {row.ticker} USDT · {tfLabel}
           </h2>
           <p className="sheet-meta">
-            Spot {formatPrice(row.spot, row.digits)} · {row.fill} · {buys}
+            Spot {formatPrice(spot, row.digits)} · {row.fill} · {buys}
           </p>
         </div>
         {!desktop ? (

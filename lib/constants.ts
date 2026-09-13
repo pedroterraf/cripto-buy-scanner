@@ -4,6 +4,8 @@ export const SMA_SLOW = 200;
 export const POINT_PAD = 0.004;
 export const WEEKLY_KLINE_LIMIT = 1000;
 export const DAILY_KLINE_LIMIT = 1000;
+export const BINANCE_WS_BASE = "wss://stream.binance.com:9443/stream";
+export const BINANCE_WS_RECONNECT_MS = 2500;
 
 export const PLAN_COLORS = {
   buy: "#d4b46a",

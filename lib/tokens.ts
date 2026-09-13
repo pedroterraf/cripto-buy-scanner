@@ -194,4 +194,37 @@ export const TOKENS: TokenPlan[] = [
     ],
     note: "No entrar en 11,55",
   },
+  {
+    ticker: "RON",
+    symbol: "RONINUSDT",
+    digits: 4,
+    invalidation: 0.044,
+    zones: [
+      { label: "Compra", low: 0.049, high: 0.056, pct: 40 },
+      { label: "Add", low: 0.046, high: 0.047, pct: 60 },
+    ],
+    tps: [
+      { label: "TP1", price: 4.45 },
+      { label: "TP2", price: 6.7 },
+      { label: "TP3", price: 8.9 },
+    ],
+    note: "ATH 4,45 → 3,4 B; diluye a 1 B. No perseguir > 0,063",
+  },
+  {
+    ticker: "LINEA",
+    symbol: "LINEAUSDT",
+    digits: 6,
+    invalidation: 0.002,
+    zones: [
+      { label: "Starter", low: 0.0022, high: 0.0024, pct: 30 },
+      { label: "Add", low: 0.0021, high: 0.00215, pct: 40 },
+      { label: "Pánico", low: 0.00207, high: 0.00207, pct: 30 },
+    ],
+    tps: [
+      { label: "TP1", price: 0.0467 },
+      { label: "TP2", price: 0.07 },
+      { label: "TP3", price: 0.093 },
+    ],
+    note: "ATH listing; ~34% circ / 72 B. No perseguir > 0,00287",
+  },
 ];

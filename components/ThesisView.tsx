@@ -72,7 +72,7 @@ export function ThesisView() {
         </ul>
       </section>
       <section>
-        <h2>Los 13 del escáner</h2>
+        <h2>Los 15 del escáner</h2>
         <div className="table-wrap">
           <table>
             <thead>
