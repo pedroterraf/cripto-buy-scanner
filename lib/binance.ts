@@ -86,7 +86,12 @@ export function subscribeKlines(
   return () => {
     closed = true;
     if (reconnectTimer) clearTimeout(reconnectTimer);
-    socket?.close();
+    if (socket) {
+      socket.onclose = null;
+      socket.onerror = null;
+      socket.onmessage = null;
+      socket.close();
+    }
   };
 }
 

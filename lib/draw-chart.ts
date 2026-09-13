@@ -17,6 +17,8 @@ import type { Candle, ChartTimeframe, CrossAnalysis, TokenPlan } from "@/lib/typ
 
 export interface PlanChartHandle {
   chart: IChartApi;
+  ticker: string;
+  timeframe: ChartTimeframe;
   applyLiveBar: (candles: Candle[], cross: CrossAnalysis) => void;
 }
 
@@ -88,6 +90,7 @@ export function drawPlanChart(
   cross: CrossAnalysis,
   timeframe: ChartTimeframe,
 ): PlanChartHandle {
+  host.replaceChildren();
   const minMove = Math.pow(10, -token.digits);
   const chart = createChart(host, {
     autoSize: true,
@@ -162,6 +165,8 @@ export function drawPlanChart(
 
   return {
     chart,
+    ticker: token.ticker,
+    timeframe,
     applyLiveBar(nextCandles, nextCross) {
       const last = nextCandles[nextCandles.length - 1];
       if (!last) return;

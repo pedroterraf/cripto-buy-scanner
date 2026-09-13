@@ -50,7 +50,11 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
   dailyRef.current = daily;
 
   useEffect(() => {
-    if (!row) {
+    setTimeframe("weekly");
+  }, [ticker]);
+
+  useEffect(() => {
+    if (!symbol) {
       setWeeklyCandles(null);
       setDailyCandles(null);
       setDaily(null);
@@ -61,21 +65,22 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
     }
 
     let cancelled = false;
+    setWeeklyCandles(null);
+    setDailyCandles(null);
+    setDaily(null);
+    setWeekly(null);
     setLoading(true);
     setError(null);
 
     async function load() {
       try {
-        if (!row) return;
         const [week, day] = await Promise.all([
-          fetchKlines(row.token.symbol, "1w", WEEKLY_KLINE_LIMIT),
-          fetchKlines(row.token.symbol, "1d", DAILY_KLINE_LIMIT),
+          fetchKlines(symbol, "1w", WEEKLY_KLINE_LIMIT),
+          fetchKlines(symbol, "1d", DAILY_KLINE_LIMIT),
         ]);
         if (cancelled) return;
         setWeeklyCandles(week);
         setDailyCandles(day);
-        setWeekly(analyze(week));
-        setDaily(analyze(day));
       } catch (caught) {
         if (cancelled) return;
         const message = caught instanceof Error ? caught.message : "red";
@@ -89,7 +94,7 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
     return () => {
       cancelled = true;
     };
-  }, [row]);
+  }, [symbol]);
 
   useEffect(() => {
     if (!symbol) return;
@@ -103,17 +108,18 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
   }, [symbol]);
 
   useEffect(() => {
-    if (weeklyCandles) setWeekly(analyze(weeklyCandles));
+    setWeekly(weeklyCandles ? analyze(weeklyCandles) : null);
   }, [weeklyCandles]);
 
   useEffect(() => {
-    if (dailyCandles) setDaily(analyze(dailyCandles));
+    setDaily(dailyCandles ? analyze(dailyCandles) : null);
   }, [dailyCandles]);
 
   useEffect(() => {
     if (!token || !dataReady) {
       handleRef.current?.chart.remove();
       handleRef.current = null;
+      hostRef.current?.replaceChildren();
       return;
     }
     const candles =
@@ -146,6 +152,7 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
     void waitForSize().then(() => {
       if (cancelled) return;
       handleRef.current?.chart.remove();
+      host.replaceChildren();
       handleRef.current = drawPlanChart(host, token, candles, cross, timeframe);
     });
 
@@ -153,15 +160,19 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
       cancelled = true;
       handleRef.current?.chart.remove();
       handleRef.current = null;
+      host.replaceChildren();
     };
   }, [ticker, timeframe, dataReady, token]);
 
   useEffect(() => {
+    const handle = handleRef.current;
+    if (!handle || !ticker) return;
+    if (handle.ticker !== ticker || handle.timeframe !== timeframe) return;
     const candles = timeframe === "weekly" ? weeklyCandles : dailyCandles;
     const cross = timeframe === "weekly" ? weekly : daily;
     if (!candles || !cross) return;
-    handleRef.current?.applyLiveBar(candles, cross);
-  }, [weeklyCandles, dailyCandles, weekly, daily, timeframe]);
+    handle.applyLiveBar(candles, cross);
+  }, [weeklyCandles, dailyCandles, weekly, daily, timeframe, ticker]);
 
   if (!row) {
     return (
@@ -180,7 +191,9 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
 
   return (
     <div className="chart-pane" data-testid="chart-panel">
-      <div className="sheet-head">
+      <div className="sheet-chrome" {...(!desktop ? { "data-sheet-chrome": "" } : {})}>
+        {!desktop ? <div className="grab" aria-hidden="true" /> : null}
+        <div className="sheet-head">
         <div>
           <h2 id="sheetTitle">
             {row.ticker} USDT · {tfLabel}
@@ -225,10 +238,17 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
           {weekly ? crossLabel(weekly) : "…"}
         </div>
       </div>
+      </div>
       {error ? <p className="chart-error">{error}</p> : null}
       <div className="chart-stage">
         {loading ? <p className="chart-loading">Cargando velas y medias…</p> : null}
-        <div className="chart-host" ref={hostRef} data-testid="chart-host" />
+        <div
+          className="chart-host"
+          ref={hostRef}
+          data-testid="chart-host"
+          data-ticker={row.ticker}
+          data-close={String(spot)}
+        />
       </div>
     </div>
   );

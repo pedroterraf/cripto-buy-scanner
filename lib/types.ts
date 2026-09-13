@@ -10,6 +10,8 @@ export interface TakeProfit {
   price: number;
 }
 
+export type StarCount = 1 | 2 | 3 | 4 | 5;
+
 export interface TokenPlan {
   ticker: string;
   symbol: string;
@@ -18,9 +20,11 @@ export interface TokenPlan {
   zones: PriceZone[];
   tps: TakeProfit[];
   note: string;
+  cycleFit: StarCount;
 }
 
-export type ScanStatus = "buy" | "wait" | "dead";
+export type ScanStatus = "sell" | "buy" | "wait" | "dead";
+export type SellLevel = "TP1" | "TP2" | "TP3";
 
 export interface ScanRow {
   ticker: string;
@@ -31,7 +35,9 @@ export interface ScanRow {
   badge: string;
   fill: string;
   detail: string;
+  stars: StarCount;
   active?: PriceZone;
+  sellLevel?: SellLevel;
 }
 
 export interface Candle {

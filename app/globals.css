@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --ink: #e8e0d0;
   --mute: #8d8678;
   --faint: #5c584f;
@@ -9,6 +10,8 @@
   --gold-dim: #2a2618;
   --wait: #7d8b97;
   --inv: #c45c4a;
+  --sell: #ec407a;
+  --euphoria: #ab47bc;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -50,7 +53,12 @@ button {
   gap: 12px;
   padding: calc(10px + var(--safe-top)) 16px 10px;
   border-bottom: 1px solid var(--rule);
+  background: var(--panel);
   flex-shrink: 0;
+}
+
+.topbar > div:first-child {
+  min-width: 0;
 }
 
 .topbar h1 {
@@ -62,7 +70,13 @@ button {
 }
 
 .scan {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
+  min-width: 7.25rem;
   padding: 0 14px;
   border: 1px solid var(--gold);
   background: transparent;
@@ -70,14 +84,40 @@ button {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-size: 11px;
-}
-
-.scan:active {
-  transform: scale(0.97);
+  white-space: nowrap;
 }
 
 .scan:disabled {
-  opacity: 0.45;
+  opacity: 1;
+}
+
+.scan-label {
+  display: block;
+}
+
+.scan.scanning .scan-label {
+  visibility: hidden;
+}
+
+.scan-loader {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(212 180 106 / 28%);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.scan.scanning .scan-loader {
+  opacity: 1;
+  animation: scan-spin 0.7s linear infinite;
+}
+
+@keyframes scan-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .stamp {
@@ -102,7 +142,7 @@ button {
 
 .tally {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   border-bottom: 1px solid var(--rule);
   flex-shrink: 0;
 }
@@ -131,6 +171,10 @@ button {
 
 .buy-count {
   color: var(--gold);
+}
+
+.sell-count {
+  color: var(--sell);
 }
 
 .list {
@@ -166,6 +210,30 @@ button {
   border-color: #5a332c;
 }
 
+.card.sell {
+  border-color: var(--sell);
+  background: #2a1520;
+}
+
+.card.sell .status-row {
+  color: var(--sell);
+}
+
+.card.sell-final {
+  border-color: var(--euphoria);
+  background: #241428;
+  box-shadow: 0 0 0 1px var(--euphoria), 0 0 18px #ab47bc55;
+}
+
+.card.sell-final .status-row {
+  color: var(--euphoria);
+  font-weight: 600;
+}
+
+.card.sell-final .ticker {
+  color: var(--euphoria);
+}
+
 .card.open {
   outline: 1px solid var(--gold);
 }
@@ -181,6 +249,27 @@ button {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 1px;
+  font-size: 11px;
+  letter-spacing: 0;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.stars .on {
+  color: var(--gold);
+}
+
+.stars .off {
+  color: var(--faint);
 }
 
 .spot {
@@ -265,7 +354,7 @@ button {
   gap: 8px;
   border-top: 1px solid var(--rule);
   padding: 4px 12px var(--safe-bottom);
-  background: var(--carbon);
+  background: var(--panel);
   flex-shrink: 0;
 }
 
@@ -500,6 +589,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 30;
+  overscroll-behavior: none;
 }
 
 .backdrop {
@@ -509,6 +599,7 @@ button {
   border: 0;
   width: 100%;
   height: 100%;
+  opacity: 0;
 }
 
 .panel {
@@ -522,6 +613,18 @@ button {
   display: flex;
   flex-direction: column;
   padding-bottom: var(--safe-bottom);
+  transform: translate3d(0, 100%, 0);
+  will-change: transform;
+}
+
+[data-sheet-chrome] {
+  touch-action: none;
+  flex-shrink: 0;
+  background: var(--panel);
+}
+
+.sheet.dragging {
+  user-select: none;
 }
 
 .grab {
@@ -554,8 +657,17 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card:active,
-  .scan:active {
+  .card:active {
     transform: none;
+  }
+
+  .scan.scanning .scan-loader {
+    animation: none;
+    border-top-color: var(--gold);
+    border-right-color: var(--gold);
+  }
+
+  .panel {
+    will-change: auto;
   }
 }

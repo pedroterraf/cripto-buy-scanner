@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChartPanel } from "@/components/ChartPanel";
+import { MobileSheet } from "@/components/MobileSheet";
 import { ThesisView } from "@/components/ThesisView";
 import { TokenCard } from "@/components/TokenCard";
 import { fetchSpotPrices } from "@/lib/binance";
-import { DESKTOP_MIN_PX } from "@/lib/constants";
-import { evaluateToken } from "@/lib/evaluate";
+import { DESKTOP_MIN_PX, SCAN_INTERVAL_MS } from "@/lib/constants";
+import { assignRelativeStars, compareScanRows, evaluateToken } from "@/lib/evaluate";
 import { TOKENS } from "@/lib/tokens";
 import type { ScanRow } from "@/lib/types";
 
@@ -27,11 +28,15 @@ export function BuyScanner() {
   const [view, setView] = useState<"zonas" | "tesis">("zonas");
   const [rows, setRows] = useState<ScanRow[]>([]);
   const [selected, setSelected] = useState<ScanRow | null>(null);
+  const [sheetRow, setSheetRow] = useState<ScanRow | null>(null);
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stamp, setStamp] = useState("Sin datos");
+  const scanningRef = useRef(false);
 
   const scan = useCallback(async () => {
+    if (scanningRef.current) return;
+    scanningRef.current = true;
     setScanning(true);
     setError(null);
     try {
@@ -48,18 +53,17 @@ export function BuyScanner() {
             badge: "Sin precio",
             fill: "—",
             detail: "Binance no devolvió " + token.symbol,
+            stars: 1,
           };
         }
         return evaluateToken(token, spot);
       });
-      next.sort((a, b) => {
-        const rank = { buy: 0, wait: 1, dead: 2 };
-        return rank[a.status] - rank[b.status];
-      });
-      setRows(next);
+      const scored = assignRelativeStars(next);
+      scored.sort(compareScanRows);
+      setRows(scored);
       setSelected((current) => {
         if (!current) return current;
-        return next.find((row) => row.ticker === current.ticker) ?? null;
+        return scored.find((row) => row.ticker === current.ticker) ?? null;
       });
       setStamp(
         "Binance " +
@@ -73,13 +77,22 @@ export function BuyScanner() {
       const message = caught instanceof Error ? caught.message : "red";
       setError("No pude leer Binance (" + message + ").");
     } finally {
+      scanningRef.current = false;
       setScanning(false);
     }
   }, []);
 
   useEffect(() => {
     void scan();
+    const timer = window.setInterval(() => {
+      void scan();
+    }, SCAN_INTERVAL_MS);
+    return () => window.clearInterval(timer);
   }, [scan]);
+
+  useEffect(() => {
+    if (selected) setSheetRow(selected);
+  }, [selected]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -89,6 +102,7 @@ export function BuyScanner() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
+  const nSell = rows.filter((row) => row.status === "sell").length;
   const nBuy = rows.filter((row) => row.status === "buy").length;
   const nWait = rows.filter((row) => row.status === "wait").length;
   const nDead = rows.filter((row) => row.status === "dead").length;
@@ -101,8 +115,15 @@ export function BuyScanner() {
           <h1>Zonas de compra</h1>
           <div className="stamp">{stamp}</div>
         </div>
-        <button className="scan" type="button" disabled={scanning} onClick={() => void scan()}>
-          {scanning ? "…" : "Escanear"}
+        <button
+          className={`scan${scanning ? " scanning" : ""}`}
+          type="button"
+          disabled={scanning}
+          aria-busy={scanning}
+          onClick={() => void scan()}
+        >
+          <span className="scan-label">Escanear</span>
+          <span className="scan-loader" aria-hidden="true" />
         </button>
       </header>
 
@@ -110,6 +131,10 @@ export function BuyScanner() {
         <div className="workspace">
           <div className="sidebar">
             <section className="tally" aria-live="polite">
+              <div>
+                <span>En venta</span>
+                <strong className="sell-count">{rows.length ? nSell : "—"}</strong>
+              </div>
               <div>
                 <span>En compra</span>
                 <strong className="buy-count">{rows.length ? nBuy : "—"}</strong>
@@ -119,7 +144,7 @@ export function BuyScanner() {
                 <strong>{rows.length ? nWait : "—"}</strong>
               </div>
               <div>
-                <span>Invalidado</span>
+                <span>Inv.</span>
                 <strong>{rows.length ? nDead : "—"}</strong>
               </div>
             </section>
@@ -144,15 +169,15 @@ export function BuyScanner() {
         <ThesisView />
       )}
 
-      {sheetOpen ? (
-        <div className="sheet open" role="presentation">
-          <button className="backdrop" type="button" aria-label="Cerrar gráfico" onClick={() => setSelected(null)} />
-          <aside className="panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-            <div className="grab" aria-hidden="true" />
-            <ChartPanel row={selected} desktop={false} onClose={() => setSelected(null)} />
-          </aside>
-        </div>
-      ) : null}
+      {desktop ? null : (
+        <MobileSheet open={sheetOpen} onClose={() => setSelected(null)}>
+          <ChartPanel
+            row={selected ?? sheetRow}
+            desktop={false}
+            onClose={() => setSelected(null)}
+          />
+        </MobileSheet>
+      )}
 
       <nav className="tabbar">
         <button

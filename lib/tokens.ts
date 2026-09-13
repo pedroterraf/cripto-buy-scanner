@@ -16,6 +16,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 4 },
     ],
     note: "TP1 no es el ATH (116 B)",
+    cycleFit: 4,
   },
   {
     ticker: "RAY",
@@ -29,6 +30,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 35 },
     ],
     note: "4,5 B → 9,5 B",
+    cycleFit: 3,
   },
   {
     ticker: "ARB",
@@ -42,6 +44,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 4 },
     ],
     note: "Unlocks",
+    cycleFit: 2,
   },
   {
     ticker: "TAO",
@@ -55,6 +58,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 2000 },
     ],
     note: "FDV ~2×",
+    cycleFit: 4,
   },
   {
     ticker: "HBAR",
@@ -68,6 +72,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 1 },
     ],
     note: "25 B → 44 B",
+    cycleFit: 4,
   },
   {
     ticker: "ASTER",
@@ -85,6 +90,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 5.5 },
     ],
     note: "~34% unlocked",
+    cycleFit: 2,
   },
   {
     ticker: "AAVE",
@@ -98,6 +104,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 1200 },
     ],
     note: "Empresa",
+    cycleFit: 5,
   },
   {
     ticker: "ONDO",
@@ -114,6 +121,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 4.5 },
     ],
     note: "~49% circ / FDV alto",
+    cycleFit: 3,
   },
   {
     ticker: "UNI",
@@ -127,6 +135,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 80 },
     ],
     note: "Fee switch",
+    cycleFit: 5,
   },
   {
     ticker: "ENA",
@@ -144,6 +153,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 2.8 },
     ],
     note: "Diluye a 15 B",
+    cycleFit: 2,
   },
   {
     ticker: "JUP",
@@ -160,6 +170,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 4.5 },
     ],
     note: "~49% circ",
+    cycleFit: 3,
   },
   {
     ticker: "AVAX",
@@ -177,6 +188,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 220 },
     ],
     note: "220 = 97 B, euforia L1",
+    cycleFit: 4,
   },
   {
     ticker: "LINK",
@@ -193,6 +205,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 110 },
     ],
     note: "No entrar en 11,55",
+    cycleFit: 5,
   },
   {
     ticker: "RON",
@@ -209,6 +222,7 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 8.9 },
     ],
     note: "ATH 4,45 → 3,4 B; diluye a 1 B. No perseguir > 0,063",
+    cycleFit: 2,
   },
   {
     ticker: "LINEA",
@@ -226,5 +240,6 @@ export const TOKENS: TokenPlan[] = [
       { label: "TP3", price: 0.093 },
     ],
     note: "ATH listing; ~34% circ / 72 B. No perseguir > 0,00287",
+    cycleFit: 3,
   },
 ];
