@@ -64,6 +64,7 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
       return;
     }
 
+    const market = symbol;
     let cancelled = false;
     setWeeklyCandles(null);
     setDailyCandles(null);
@@ -75,8 +76,8 @@ export function ChartPanel({ row, desktop, onClose }: ChartPanelProps) {
     async function load() {
       try {
         const [week, day] = await Promise.all([
-          fetchKlines(symbol, "1w", WEEKLY_KLINE_LIMIT),
-          fetchKlines(symbol, "1d", DAILY_KLINE_LIMIT),
+          fetchKlines(market, "1w", WEEKLY_KLINE_LIMIT),
+          fetchKlines(market, "1d", DAILY_KLINE_LIMIT),
         ]);
         if (cancelled) return;
         setWeeklyCandles(week);
