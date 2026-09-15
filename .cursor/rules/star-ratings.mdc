@@ -1,0 +1,26 @@
+---
+description: Recalifica estrellas del scanner cuando el usuario pide analizar valoraciones
+alwaysApply: true
+---
+
+# Estrellas (cycleFit)
+
+Si el usuario pide analizar, chequear, revisar o actualizar **estrellas / valoraciones / cycleFit**, hacelo en esa respuesta. No esperes otro OK.
+
+## Qué miden
+
+Potencial de ciclo: si **el token** captura el negocio (fee switch / buyback / burn / cash on-chain), no si el protocolo factura, no si Kmanu u otro tweet las pone en un bag, no si está barata. Barato vs caro = zonas. Tweets = alerta, no nota.
+
+- **5** — el token ya cobra o el switch está vivo: hoy AAVE, UNI, LINK
+- **4** — red/producto serio, captura floja o dilución de tesorería: ADA, AVAX, TAO, HBAR
+- **3** — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA
+- **2** — unlocks, dilución o captura dudosa: ARB, ENA, ASTER, RON
+
+## Cómo auditar
+
+1. Los 15 de `lib/tokens.ts`. Fuentes oficiales / gobernanza / DefiLlama / supply. No Tushare.
+2. Por token: ¿cambia el negocio, la captura (propuesta vs voto vs on-chain), el supply (cliff, circ, max)?
+3. Subí o bajá solo con hecho nuevo. Si no cambió, dejalo y decilo.
+4. Actualizá en el mismo cambio: `TOKEN_DOSSIERS` + `stars` en `lib/dossier.ts`, `cycleFit` (y `note` si aplica) en `lib/tokens.ts`, leyenda de `ProjectView.tsx` si un ticker cambia de cajón, `DOSSIER_AS_OF`.
+5. **No** toques zonas, TPs ni invalidaciones salvo pedido explícito.
+6. Resumen: qué subió, qué bajó, qué se quedó, fuentes. No es consejo de inversión.

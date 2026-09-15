@@ -1,6 +1,6 @@
 import { POINT_PAD, SELL_EXIT_PCT } from "@/lib/constants";
 import { formatPrice, formatZoneRange } from "@/lib/format";
-import type { PriceZone, ScanRow, SellLevel, TakeProfit, TokenPlan } from "@/lib/types";
+import type { PriceZone, ScanRow, SellLevel, TakeProfit, TokenPlan, WaitSort } from "@/lib/types";
 
 function dropPercent(spot: number, target: number): number {
   return ((spot - target) / spot) * 100;
@@ -40,6 +40,41 @@ function sellPriority(level: SellLevel | undefined): number {
   return 2;
 }
 
+function sellExtension(row: ScanRow): number {
+  const tp = row.token.tps.find((item) => item.label === row.sellLevel);
+  if (!tp || tp.price <= 0) return 0;
+  return (row.spot - tp.price) / tp.price;
+}
+
+function buyZoneDepth(row: ScanRow): number {
+  if (!row.active) return -1;
+  return row.token.zones.findIndex(
+    (zone) =>
+      zone.label === row.active?.label &&
+      zone.low === row.active.low &&
+      zone.high === row.active.high,
+  );
+}
+
+function nextBuyZone(row: ScanRow): PriceZone | undefined {
+  return row.token.zones.find((zone) => row.spot > zone.high);
+}
+
+function distanceToBuy(row: ScanRow): number {
+  if (row.spot <= 0) return Number.POSITIVE_INFINITY;
+  const next = nextBuyZone(row);
+  if (!next) return Number.POSITIVE_INFINITY;
+  return dropPercent(row.spot, next.high);
+}
+
+function distanceToSell(row: ScanRow): number {
+  if (row.spot <= 0) return Number.POSITIVE_INFINITY;
+  const tp1 = row.token.tps.find((item) => item.label === "TP1") ?? row.token.tps[0];
+  if (!tp1 || tp1.price <= 0) return Number.POSITIVE_INFINITY;
+  if (row.spot >= tp1.price) return 0;
+  return ((tp1.price - row.spot) / row.spot) * 100;
+}
+
 function sortGroup(row: ScanRow): number {
   if (row.spot <= 0) return 4;
   if (row.status === "sell") return 0;
@@ -57,17 +92,29 @@ export function assignRelativeStars(rows: ScanRow[]): ScanRow[] {
   });
 }
 
-export function compareScanRows(a: ScanRow, b: ScanRow): number {
+export function compareScanRows(a: ScanRow, b: ScanRow, waitSort: WaitSort = "buy"): number {
   const groupA = sortGroup(a);
   const groupB = sortGroup(b);
   if (groupA !== groupB) return groupA - groupB;
   if (a.status === "sell" && b.status === "sell") {
     const level = sellPriority(a.sellLevel) - sellPriority(b.sellLevel);
     if (level !== 0) return level;
-    return b.spot - a.spot;
+    const stretch = sellExtension(b) - sellExtension(a);
+    if (stretch !== 0) return stretch;
+    return a.ticker.localeCompare(b.ticker);
   }
-  const ratio = opportunityRatio(a) - opportunityRatio(b);
-  if (ratio !== 0) return ratio;
+  if (a.status === "buy" && b.status === "buy") {
+    const depth = buyZoneDepth(b) - buyZoneDepth(a);
+    if (depth !== 0) return depth;
+    const ratio = opportunityRatio(a) - opportunityRatio(b);
+    if (ratio !== 0) return ratio;
+    return a.ticker.localeCompare(b.ticker);
+  }
+  const wait =
+    waitSort === "sell"
+      ? distanceToSell(a) - distanceToSell(b)
+      : distanceToBuy(a) - distanceToBuy(b);
+  if (wait !== 0) return wait;
   return a.ticker.localeCompare(b.ticker);
 }
 

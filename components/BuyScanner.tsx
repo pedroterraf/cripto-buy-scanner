@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChartPanel } from "@/components/ChartPanel";
 import { MobileSheet } from "@/components/MobileSheet";
 import { ProjectView } from "@/components/ProjectView";
 import { TokenCard } from "@/components/TokenCard";
 import { fetchSpotPrices } from "@/lib/binance";
-import { DESKTOP_MIN_PX, SCAN_INTERVAL_MS } from "@/lib/constants";
+import { DESKTOP_MIN_PX, SCAN_INTERVAL_MS, WAIT_SORT_KEY } from "@/lib/constants";
 import { assignRelativeStars, compareScanRows, evaluateToken } from "@/lib/evaluate";
 import { TOKENS } from "@/lib/tokens";
-import type { ScanRow } from "@/lib/types";
+import type { ScanRow, WaitSort } from "@/lib/types";
 
 function useDesktop(): boolean {
   const [desktop, setDesktop] = useState(false);
@@ -23,16 +23,20 @@ function useDesktop(): boolean {
   return desktop;
 }
 
+type AppView = "zonas" | "proyectos" | "guia";
+
 export function BuyScanner() {
   const desktop = useDesktop();
-  const [view, setView] = useState<"zonas" | "tesis">("zonas");
+  const [view, setView] = useState<AppView>("zonas");
   const [dossierTicker, setDossierTicker] = useState<string | null>(null);
+  const [dossierFromZonas, setDossierFromZonas] = useState(false);
   const [rows, setRows] = useState<ScanRow[]>([]);
   const [selected, setSelected] = useState<ScanRow | null>(null);
   const [sheetRow, setSheetRow] = useState<ScanRow | null>(null);
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stamp, setStamp] = useState("Sin datos");
+  const [waitSort, setWaitSort] = useState<WaitSort>("buy");
   const scanningRef = useRef(false);
 
   const scan = useCallback(async () => {
@@ -60,7 +64,6 @@ export function BuyScanner() {
         return evaluateToken(token, spot);
       });
       const scored = assignRelativeStars(next);
-      scored.sort(compareScanRows);
       setRows(scored);
       setSelected((current) => {
         if (!current) return current;
@@ -92,38 +95,91 @@ export function BuyScanner() {
   }, [scan]);
 
   useEffect(() => {
+    const saved = window.localStorage.getItem(WAIT_SORT_KEY);
+    if (saved === "buy" || saved === "sell") setWaitSort(saved);
+  }, []);
+
+  useEffect(() => {
     if (selected) setSheetRow(selected);
   }, [selected]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      if (view === "tesis") {
+      if (view === "guia") {
+        setView("proyectos");
+        return;
+      }
+      if (view === "proyectos") {
+        if (dossierTicker) {
+          if (dossierFromZonas) {
+            setView("zonas");
+            setDossierTicker(null);
+            setDossierFromZonas(false);
+          } else {
+            setDossierTicker(null);
+          }
+          return;
+        }
         setView("zonas");
-        setDossierTicker(null);
         return;
       }
       setSelected(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [view]);
+  }, [view, dossierTicker, dossierFromZonas]);
 
-  const nSell = rows.filter((row) => row.status === "sell").length;
-  const nBuy = rows.filter((row) => row.status === "buy").length;
-  const nWait = rows.filter((row) => row.status === "wait").length;
-  const nDead = rows.filter((row) => row.status === "dead").length;
+  const listed = useMemo(
+    () => [...rows].sort((a, b) => compareScanRows(a, b, waitSort)),
+    [rows, waitSort],
+  );
+
+  const nSell = listed.filter((row) => row.status === "sell").length;
+  const nBuy = listed.filter((row) => row.status === "buy").length;
+  const nWait = listed.filter((row) => row.status === "wait").length;
+  const nDead = listed.filter((row) => row.status === "dead").length;
   const sheetOpen = Boolean(selected) && !desktop && view === "zonas";
 
-  function openDossier(ticker?: string): void {
-    setDossierTicker(ticker ?? null);
-    setView("tesis");
+  function chooseWaitSort(next: WaitSort): void {
+    setWaitSort(next);
+    window.localStorage.setItem(WAIT_SORT_KEY, next);
+  }
+
+  function openProjects(): void {
+    setDossierTicker(null);
+    setDossierFromZonas(false);
+    setView("proyectos");
     if (!desktop) setSelected(null);
   }
 
-  function closeDossier(): void {
+  function openDossier(ticker: string): void {
+    setDossierTicker(ticker);
+    setDossierFromZonas(true);
+    setView("proyectos");
+    if (!desktop) setSelected(null);
+  }
+
+  function closeProject(): void {
     setView("zonas");
     setDossierTicker(null);
+    setDossierFromZonas(false);
+  }
+
+  function backFromProject(): void {
+    if (view === "guia") {
+      setView("proyectos");
+      return;
+    }
+    if (dossierTicker) {
+      if (dossierFromZonas) {
+        closeProject();
+        return;
+      }
+      setDossierTicker(null);
+      return;
+    }
+    closeProject();
   }
 
   return (
@@ -168,8 +224,27 @@ export function BuyScanner() {
                 <strong>{rows.length ? nDead : "—"}</strong>
               </div>
             </section>
+            <div className="wait-sort" role="group" aria-label="Ordenar espera">
+              <span>Cerca de</span>
+              <button
+                type="button"
+                aria-pressed={waitSort === "buy"}
+                aria-label="Ordenar espera cerca de compra"
+                onClick={() => chooseWaitSort("buy")}
+              >
+                Compra
+              </button>
+              <button
+                type="button"
+                aria-pressed={waitSort === "sell"}
+                aria-label="Ordenar espera cerca de venta"
+                onClick={() => chooseWaitSort("sell")}
+              >
+                Venta
+              </button>
+            </div>
             <div className="list">
-              {rows.map((row) => (
+              {listed.map((row) => (
                 <TokenCard
                   key={row.ticker}
                   row={row}
@@ -187,7 +262,17 @@ export function BuyScanner() {
           ) : null}
         </div>
       ) : (
-        <ProjectView focusTicker={dossierTicker} onBack={closeDossier} />
+        <ProjectView
+          ticker={dossierTicker}
+          showGuide={view === "guia"}
+          fromZonas={dossierFromZonas}
+          onBack={backFromProject}
+          onOpenToken={(next) => {
+            setDossierTicker(next);
+            setDossierFromZonas(false);
+          }}
+          onOpenGuide={() => setView("guia")}
+        />
       )}
 
       {desktop ? null : (
@@ -204,16 +289,16 @@ export function BuyScanner() {
         <button
           type="button"
           aria-selected={view === "zonas"}
-          onClick={() => closeDossier()}
+          onClick={() => closeProject()}
         >
           Zonas
         </button>
         <button
           type="button"
-          aria-selected={view === "tesis"}
-          onClick={() => openDossier()}
+          aria-selected={view !== "zonas"}
+          onClick={() => openProjects()}
         >
-          Proyecto
+          Proyectos
         </button>
       </nav>
     </div>

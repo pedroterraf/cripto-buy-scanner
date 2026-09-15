@@ -25,6 +25,7 @@ export interface TokenPlan {
 
 export type ScanStatus = "sell" | "buy" | "wait" | "dead";
 export type SellLevel = "TP1" | "TP2" | "TP3";
+export type WaitSort = "buy" | "sell";
 
 export interface ScanRow {
   ticker: string;

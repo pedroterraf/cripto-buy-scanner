@@ -7,6 +7,7 @@ export const DAILY_KLINE_LIMIT = 1000;
 export const BINANCE_WS_BASE = "wss://stream.binance.com:9443/stream";
 export const BINANCE_WS_RECONNECT_MS = 2500;
 export const SCAN_INTERVAL_MS = 60 * 60 * 1000;
+export const WAIT_SORT_KEY = "wait-sort";
 export const SHEET_DRAG_THRESHOLD_PX = 10;
 export const SHEET_CLOSE_RATIO = 0.28;
 export const SHEET_FLICK_PX_PER_MS = 0.55;

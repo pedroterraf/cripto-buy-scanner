@@ -8,13 +8,17 @@ import type { StarCount } from "@/lib/types";
 const STAR_SLOTS = [1, 2, 3, 4, 5] as const;
 
 interface ProjectViewProps {
-  focusTicker?: string | null;
+  ticker: string | null;
+  showGuide: boolean;
+  fromZonas: boolean;
   onBack: () => void;
+  onOpenToken: (ticker: string) => void;
+  onOpenGuide: () => void;
 }
 
-function StarRow({ stars }: { stars: StarCount }) {
+function StarRow({ stars, labeled = true }: { stars: StarCount; labeled?: boolean }) {
   return (
-    <span className="stars" aria-label={`${stars} de 5`}>
+    <span className="stars" aria-hidden={labeled ? undefined : true} aria-label={labeled ? `${stars} de 5` : undefined}>
       {STAR_SLOTS.map((slot) => (
         <span key={slot} className={slot <= stars ? "on" : "off"}>
           ★
@@ -24,35 +28,165 @@ function StarRow({ stars }: { stars: StarCount }) {
   );
 }
 
-export function ProjectView({ focusTicker, onBack }: ProjectViewProps) {
-  const spotlight = focusTicker ? dossierByTicker(focusTicker) : undefined;
+export function ProjectView({
+  ticker,
+  showGuide,
+  fromZonas,
+  onBack,
+  onOpenToken,
+  onOpenGuide,
+}: ProjectViewProps) {
+  if (showGuide) {
+    return <GuideView onBack={onBack} />;
+  }
 
+  const item = ticker ? dossierByTicker(ticker) : undefined;
+  if (item) {
+    return (
+      <TokenDossierView
+        ticker={item.ticker}
+        fromZonas={fromZonas}
+        onBack={onBack}
+      />
+    );
+  }
+
+  return (
+    <ProjectCatalog onBack={onBack} onOpenToken={onOpenToken} onOpenGuide={onOpenGuide} />
+  );
+}
+
+function ProjectCatalog({
+  onBack,
+  onOpenToken,
+  onOpenGuide,
+}: {
+  onBack: () => void;
+  onOpenToken: (ticker: string) => void;
+  onOpenGuide: () => void;
+}) {
   return (
     <div className="project-view">
       <header className="project-bar">
         <button className="back" type="button" onClick={onBack} aria-label="Volver a zonas">
           ←
         </button>
-        <div>
-          <h1>Proyecto</h1>
+        <div className="bar-main">
+          <h1>Proyectos</h1>
           <p className="stamp">Fundamentos · {DOSSIER_AS_OF}</p>
         </div>
+        <button className="bar-link" type="button" onClick={onOpenGuide}>
+          Reglas
+        </button>
       </header>
+      <div className="project-catalog">
+        <div className="project-grid">
+          {TOKEN_DOSSIERS.map((item) => (
+            <button
+              key={item.ticker}
+              type="button"
+              className="pick-card"
+              aria-label={`${item.ticker}, ${item.stars} de 5, abrir ficha`}
+              onClick={() => onOpenToken(item.ticker)}
+            >
+              <span className="pick-top">
+                <span className="pick-ticker">{item.ticker}</span>
+                <StarRow stars={item.stars} labeled={false} />
+              </span>
+              <span className="pick-name">{item.name}</span>
+              <span className="pick-verdict">{item.verdict}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-      <article className="thesis project-copy">
-        {spotlight ? (
-          <section className="dossier-spot" aria-label={"Ficha " + spotlight.ticker}>
-            <p className="dossier-kicker">Entraste por {spotlight.ticker}</p>
+function TokenDossierView({
+  ticker,
+  fromZonas,
+  onBack,
+}: {
+  ticker: string;
+  fromZonas: boolean;
+  onBack: () => void;
+}) {
+  const item = dossierByTicker(ticker);
+  const plan = TOKENS.find((token) => token.ticker === ticker);
+  if (!item) return null;
+
+  return (
+    <div className="project-view">
+      <header className="project-bar">
+        <button
+          className="back"
+          type="button"
+          onClick={onBack}
+          aria-label={fromZonas ? "Volver a zonas" : "Volver a proyectos"}
+        >
+          ←
+        </button>
+        <div className="bar-main">
+          <h1>{item.ticker}</h1>
+          <p className="stamp">{item.name}</p>
+        </div>
+      </header>
+      <div className="dossier-page">
+        <article className="dossier-body">
+          <div className="dossier-id">
+            <p className="dossier-kicker">Ficha</p>
             <h2>
-              {spotlight.ticker} · {spotlight.name} <StarRow stars={spotlight.stars} />
+              {item.ticker} · {item.name} <StarRow stars={item.stars} />
             </h2>
-            <p>{spotlight.verdict}</p>
-            <a className="dossier-jump" href={"#dossier-" + spotlight.ticker}>
-              Ver ficha completa ↓
-            </a>
-          </section>
-        ) : null}
+            {plan ? (
+              <p className="dossier-plan">
+                {plan.zones
+                  .map((zone) => zone.label + " " + formatZoneRange(zone, plan.digits))
+                  .join(" · ")}
+                {plan.invalidation != null
+                  ? " · INV < " + formatPrice(plan.invalidation, plan.digits)
+                  : ""}
+                {" · "}
+                {plan.tps
+                  .map((tp) => tp.label + " " + formatPrice(tp.price, plan.digits))
+                  .join(" / ")}
+              </p>
+            ) : null}
+          </div>
+          <div className="dossier-copy">
+            <p>
+              <b>Negocio.</b> {item.business}
+            </p>
+            <p>
+              <b>Captura.</b> {item.capture}
+            </p>
+            <p>
+              <b>Supply.</b> {item.supply}
+            </p>
+            <p>
+              <b>Veredicto.</b> {item.verdict}
+            </p>
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+}
 
+function GuideView({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="project-view">
+      <header className="project-bar">
+        <button className="back" type="button" onClick={onBack} aria-label="Volver a proyectos">
+          ←
+        </button>
+        <div className="bar-main">
+          <h1>Reglas</h1>
+          <p className="stamp">Plan · {DOSSIER_AS_OF}</p>
+        </div>
+      </header>
+      <article className="thesis guide-copy">
         <section>
           <h2>Por qué existe esto</h2>
           <p>
@@ -65,7 +199,9 @@ export function ProjectView({ focusTicker, onBack }: ProjectViewProps) {
             La tesis es comprar barato (drawdown vs ATH + cap vs negocio) y vender
             el bull entero: 20% ATH viejo / 30% ATH nuevo / 50% euforia. El primer
             techo semanal no es destino. Las estrellas miden potencial de ciclo
-            (si el token cobra). La lista ordena cuándo actuar, no quién es mejor.
+            (si el token cobra). La lista ordena cuándo actuar: venta (TP más
+            alto primero), compra (zona más baja primero), espera con filtro
+            cerca de compra o de venta.
           </p>
         </section>
 
@@ -101,17 +237,6 @@ export function ProjectView({ focusTicker, onBack }: ProjectViewProps) {
             <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA.</li>
             <li>2 — unlocks, dilución o captura dudosa: ARB, ENA, ASTER, RON.</li>
           </ul>
-        </section>
-
-        <section>
-          <h2>Los 15 · análisis</h2>
-          <p>
-            Negocio, captura de valor y supply. Precios del plan al final de cada
-            ficha. Datos al {DOSSIER_AS_OF}; unlocks y tesorerías se mueven.
-          </p>
-          {TOKEN_DOSSIERS.map((item) => (
-            <TokenBrief key={item.ticker} item={item} active={focusTicker === item.ticker} />
-          ))}
         </section>
 
         <section>
@@ -222,49 +347,5 @@ export function ProjectView({ focusTicker, onBack }: ProjectViewProps) {
         </section>
       </article>
     </div>
-  );
-}
-
-function TokenBrief({
-  item,
-  active,
-}: {
-  item: (typeof TOKEN_DOSSIERS)[number];
-  active: boolean;
-}) {
-  const plan = TOKENS.find((token) => token.ticker === item.ticker);
-  return (
-    <article
-      id={"dossier-" + item.ticker}
-      className={`dossier-card${active ? " active" : ""}`}
-    >
-      <header>
-        <h3>
-          {item.ticker} · {item.name} <StarRow stars={item.stars} />
-        </h3>
-      </header>
-      <p>
-        <b>Negocio.</b> {item.business}
-      </p>
-      <p>
-        <b>Captura.</b> {item.capture}
-      </p>
-      <p>
-        <b>Supply.</b> {item.supply}
-      </p>
-      <p>
-        <b>Veredicto.</b> {item.verdict}
-      </p>
-      {plan ? (
-        <p className="dossier-plan">
-          Plan {plan.zones.map((zone) => zone.label + " " + formatZoneRange(zone, plan.digits)).join(" · ")}
-          {plan.invalidation != null
-            ? " · INV < " + formatPrice(plan.invalidation, plan.digits)
-            : ""}
-          {" · "}
-          {plan.tps.map((tp) => tp.label + " " + formatPrice(tp.price, plan.digits)).join(" / ")}
-        </p>
-      ) : null}
-    </article>
   );
 }

@@ -31,6 +31,9 @@ async function runViewport(browser, viewport) {
   const chartOpen = page.getByRole("button", { name: /abrir gráfico semanal/ });
   await chartOpen.first().waitFor({ timeout: 25000 });
   await page.getByRole("button", { name: "Escanear" }).waitFor();
+  await page.getByRole("button", { name: "Ordenar espera cerca de compra" }).waitFor();
+  await page.getByRole("button", { name: "Ordenar espera cerca de venta" }).click();
+  await page.getByRole("button", { name: "Ordenar espera cerca de compra" }).click();
 
   const info = page.getByRole("button", { name: "AVAX, abrir fundamentos" });
   const infoBox = await info.boundingBox();
@@ -59,17 +62,15 @@ async function runViewport(browser, viewport) {
   });
 
   await info.click();
-  await page.getByRole("heading", { name: "Proyecto" }).waitFor({ timeout: 8000 });
+  await page.getByRole("heading", { name: "AVAX", exact: true }).waitFor({ timeout: 8000 });
   if (await page.getByTestId("chart-host").count()) {
     fail(viewport.name, "info button opened the chart");
   }
-  await page.getByText("Entraste por AVAX").waitFor();
-  await page.getByRole("heading", { name: "Por qué existe esto" }).waitFor();
-  await page.getByRole("heading", { name: "Conclusión" }).waitFor();
-  await page.getByText(/17 sep 2027/).first().waitFor();
-  await page.getByText(/Máximo fijo 50 B/).waitFor();
-  await page.getByText(/Net-Zero Emissions/).waitFor();
-  await page.getByText(/18 ene 2027/).first().waitFor();
+  if (await page.getByRole("heading", { name: "Por qué existe esto" }).count()) {
+    fail(viewport.name, "token info opened the generic guide");
+  }
+  await page.getByText(/L1 de subnets/).waitFor();
+  await page.getByText(/Veredicto/).waitFor();
   const back = page.getByRole("button", { name: "Volver a zonas" });
   const backBox = await back.boundingBox();
   if (!backBox || backBox.height < 44) {
@@ -131,8 +132,56 @@ async function runViewport(browser, viewport) {
     await page.getByRole("heading", { name: "Zonas de compra" }).waitFor();
   }
 
-  await page.getByRole("button", { name: "Proyecto", exact: true }).click();
+  await page.getByRole("button", { name: "Proyectos", exact: true }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+  const grid = page.locator(".project-grid");
+  await grid.waitFor();
+  const pickCount = await page.getByRole("button", { name: /abrir ficha$/ }).count();
+  if (pickCount !== 15) {
+    fail(viewport.name, "project grid should list 15 tokens, got " + pickCount);
+  }
+  if (await page.getByRole("heading", { name: "Por qué existe esto" }).count()) {
+    fail(viewport.name, "project tab showed the guide instead of the grid");
+  }
+  const gridBox = await grid.boundingBox();
+  if (viewport.name === "desktop" && (!gridBox || gridBox.width < 900)) {
+    fail(viewport.name, "project grid not using the desktop width");
+  }
+  await page.screenshot({
+    path: `scripts/shots/${viewport.name}-projects.png`,
+    scale: "css",
+  });
+
+  await page.getByRole("button", { name: /ASTER, .*abrir ficha/ }).click();
+  await page.getByText(/17 sep 2027/).first().waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /HBAR, .*abrir ficha/ }).click();
+  await page.getByText(/Máximo fijo 50 B/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /JUP, .*abrir ficha/ }).click();
+  await page.getByText(/Net-Zero Emissions/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /ONDO, .*abrir ficha/ }).click();
+  await page.getByText(/18 ene 2027/).first().waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: "Reglas", exact: true }).click();
   await page.getByRole("heading", { name: "Por qué existe esto" }).waitFor();
+  await page.getByRole("heading", { name: "Conclusión" }).waitFor();
+  await page.screenshot({
+    path: `scripts/shots/${viewport.name}-tesis.png`,
+    scale: "css",
+  });
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
   await page.getByRole("button", { name: "Zonas", exact: true }).click();
   await page.getByRole("heading", { name: "Zonas de compra" }).waitFor();
 

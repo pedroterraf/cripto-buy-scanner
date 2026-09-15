@@ -177,6 +177,40 @@ button {
   color: var(--sell);
 }
 
+.wait-sort {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+
+.wait-sort > span {
+  color: var(--mute);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.wait-sort button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--mute);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.wait-sort button[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
 .list {
   flex: 1;
   min-height: 0;
@@ -423,8 +457,6 @@ button {
   overflow: auto;
   padding: 16px 16px calc(24px + var(--safe-bottom));
   width: 100%;
-  max-width: 920px;
-  margin: 0 auto;
 }
 
 .thesis h2 {
@@ -687,6 +719,23 @@ button {
   flex-shrink: 0;
 }
 
+.bar-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.bar-link {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
 .project-bar h1 {
   margin: 0;
   font-size: 13px;
@@ -709,16 +758,101 @@ button {
   transform: scale(0.94);
 }
 
-.project-copy {
-  scroll-padding-top: 12px;
-  margin: 0;
-  max-width: 760px;
+.guide-copy {
+  max-width: 72ch;
+  margin: 0 auto;
 }
 
-.dossier-spot {
-  border: 1px solid var(--gold);
-  background: var(--gold-dim);
-  padding: 14px 14px 12px;
+.project-catalog {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px 16px calc(20px + var(--safe-bottom));
+  width: 100%;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.pick-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 148px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  color: inherit;
+  text-align: left;
+}
+
+@media (hover: hover) {
+  .pick-card:hover {
+    border-color: var(--gold);
+  }
+}
+
+.pick-card:focus-visible {
+  border-color: var(--gold);
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.pick-card:active {
+  transform: scale(0.99);
+}
+
+.pick-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.pick-ticker {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.pick-name {
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.pick-verdict {
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dossier-page {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 20px calc(28px + var(--safe-bottom));
+  width: 100%;
+}
+
+.dossier-body {
+  width: min(920px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 22px;
+  padding: 22px;
+  border: 1px solid var(--rule);
+  background: var(--panel);
 }
 
 .dossier-kicker {
@@ -729,49 +863,33 @@ button {
   text-transform: uppercase;
 }
 
-.dossier-jump {
-  display: inline-block;
-  margin-top: 8px;
-  color: var(--gold);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-}
-
-.dossier-card {
-  margin-top: 14px;
-  padding: 12px 12px 10px;
-  border: 1px solid var(--rule);
-  background: var(--panel);
-  scroll-margin-top: 12px;
-}
-
-.dossier-card.active {
-  border-color: var(--gold);
-}
-
-.dossier-card h3 {
-  margin: 0 0 8px;
-  font-size: 14px;
+.dossier-id h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
   font-weight: 600;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
-.dossier-card p {
-  margin: 0 0 8px;
+.dossier-copy p {
+  margin: 0 0 14px;
+  color: var(--mute);
+  font-size: 14px;
+  line-height: 1.55;
 }
 
-.dossier-card b {
+.dossier-copy b {
   color: var(--ink);
   font-weight: 600;
 }
 
 .dossier-plan {
-  color: var(--faint) !important;
-  font-size: 11px !important;
+  margin: 0;
+  color: var(--faint);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 @keyframes project-in {
@@ -825,12 +943,24 @@ button {
   .chart-pane {
     min-height: 0;
   }
+
+  .dossier-body {
+    grid-template-columns: 260px 1fr;
+    gap: 28px 48px;
+    align-items: start;
+  }
+
+  .dossier-id {
+    position: sticky;
+    top: 8px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card-main:active,
   .dossier-btn:active,
-  .back:active {
+  .back:active,
+  .pick-card:active {
     transform: none;
   }
 
