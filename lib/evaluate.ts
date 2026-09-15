@@ -6,9 +6,24 @@ function dropPercent(spot: number, target: number): number {
   return ((spot - target) / spot) * 100;
 }
 
-function inBand(spot: number, zone: PriceZone): boolean {
-  const pad = zone.low === zone.high ? Math.max(zone.low * POINT_PAD, 1e-8) : 0;
-  return spot >= zone.low - pad && spot <= zone.high + pad;
+function ceilingPad(price: number): number {
+  return Math.max(Math.abs(price) * POINT_PAD, 1e-8);
+}
+
+function atOrBelowCeiling(spot: number, zone: PriceZone): boolean {
+  return spot <= zone.high + ceilingPad(zone.high);
+}
+
+function activeBuyZone(token: TokenPlan, spot: number): PriceZone | null {
+  let current: PriceZone | null = null;
+  for (const zone of token.zones) {
+    if (!atOrBelowCeiling(spot, zone)) break;
+    current = zone;
+  }
+  if (!current) return null;
+  const floor = token.zones[token.zones.length - 1];
+  if (current === floor && spot < floor.low - ceilingPad(floor.low)) return null;
+  return current;
 }
 
 function averageBuyPrice(zones: PriceZone[]): number {
@@ -57,7 +72,7 @@ function buyZoneDepth(row: ScanRow): number {
 }
 
 function nextBuyZone(row: ScanRow): PriceZone | undefined {
-  return row.token.zones.find((zone) => row.spot > zone.high);
+  return row.token.zones.find((zone) => !atOrBelowCeiling(row.spot, zone));
 }
 
 function distanceToBuy(row: ScanRow): number {
@@ -159,24 +174,23 @@ export function evaluateToken(token: TokenPlan, spot: number): ScanRow {
     };
   }
 
-  for (const zone of token.zones) {
-    if (inBand(spot, zone)) {
-      return {
-        ticker: token.ticker,
-        spot,
-        digits: token.digits,
-        token,
-        status: "buy",
-        badge: "Compra",
-        fill: "Llenar " + zone.pct + "%",
-        detail: zone.label + " " + formatZoneRange(zone, token.digits) + ". Solo ese tramo.",
-        active: zone,
-        stars: 1,
-      };
-    }
+  const zone = activeBuyZone(token, spot);
+  if (zone) {
+    return {
+      ticker: token.ticker,
+      spot,
+      digits: token.digits,
+      token,
+      status: "buy",
+      badge: "Compra",
+      fill: "Llenar " + zone.pct + "%",
+      detail: zone.label + " " + formatZoneRange(zone, token.digits) + ". Solo ese tramo.",
+      active: zone,
+      stars: 1,
+    };
   }
 
-  const next = token.zones.find((zone) => spot > zone.high);
+  const next = token.zones.find((item) => !atOrBelowCeiling(spot, item));
   if (next) {
     return {
       ticker: token.ticker,
