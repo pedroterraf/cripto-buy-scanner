@@ -157,6 +157,19 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
       "3★: ambición (Consensys + SWIFT) y burn dual; no hay fecha en la que los bancos paguen el token. No perseguir > 0,00287.",
   },
   {
+    ticker: "AR",
+    name: "Arweave",
+    stars: 3,
+    business:
+      "Almacenamiento permanente (blockweave) y cómputo AO. Se paga el dato una vez; el endowment cubre a los mineros en el tiempo. El producto existe; el uso (writes, AO) es lo que mueve la tesis, no un partnership de un día.",
+    capture:
+      "AR se gasta para guardar y parte queda encerrado en el endowment. No hay fee-switch ni buyback tipo UNI. La captura es demanda de storage + lock, no un P&L al holder.",
+    supply:
+      "Máximo 66 M. Circulante ~65,65 M (~99,5%). Casi no queda emisión. El drag no es un cliff de VC: es si el storage no escala. ATH 91 era ~6 B de cap; TP3 180 ≈ 12 B sobre 66 M.",
+    verdict:
+      "3★: supply limpio, captura de uso. Starter 2,55; el size grande es 1,70 / 1,49. INV 1,40. No perseguir el 2,59.",
+  },
+  {
     ticker: "ARB",
     name: "Arbitrum",
     stars: 2,

@@ -13,12 +13,12 @@ Potencial de ciclo: si **el token** captura el negocio (fee switch / buyback / b
 
 - **5** — el token ya cobra o el switch está vivo: hoy AAVE, UNI, LINK
 - **4** — red/producto serio, captura floja o dilución de tesorería: ADA, AVAX, TAO, HBAR
-- **3** — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA
+- **3** — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA, AR
 - **2** — unlocks, dilución o captura dudosa: ARB, ENA, ASTER, RON
 
 ## Cómo auditar
 
-1. Los 15 de `lib/tokens.ts`. Fuentes oficiales / gobernanza / DefiLlama / supply. No Tushare.
+1. Los tokens de `lib/tokens.ts`. Fuentes oficiales / gobernanza / DefiLlama / supply. No Tushare.
 2. Por token: ¿cambia el negocio, la captura (propuesta vs voto vs on-chain), el supply (cliff, circ, max)?
 3. Subí o bajá solo con hecho nuevo. Si no cambió, dejalo y decilo.
 4. Actualizá en el mismo cambio: `TOKEN_DOSSIERS` + `stars` en `lib/dossier.ts`, `cycleFit` (y `note` si aplica) en `lib/tokens.ts`, leyenda de `ProjectView.tsx` si un ticker cambia de cajón, `DOSSIER_AS_OF`.

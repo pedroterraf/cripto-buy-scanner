@@ -137,8 +137,8 @@ async function runViewport(browser, viewport) {
   const grid = page.locator(".project-grid");
   await grid.waitFor();
   const pickCount = await page.getByRole("button", { name: /abrir ficha$/ }).count();
-  if (pickCount !== 15) {
-    fail(viewport.name, "project grid should list 15 tokens, got " + pickCount);
+  if (pickCount !== 16) {
+    fail(viewport.name, "project grid should list 16 tokens, got " + pickCount);
   }
   if (await page.getByRole("heading", { name: "Por qué existe esto" }).count()) {
     fail(viewport.name, "project tab showed the guide instead of the grid");
@@ -169,6 +169,11 @@ async function runViewport(browser, viewport) {
 
   await page.getByRole("button", { name: /ONDO, .*abrir ficha/ }).click();
   await page.getByText(/18 ene 2027/).first().waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^AR, .*abrir ficha$/ }).click();
+  await page.getByText(/Máximo 66 M/).waitFor();
   await page.getByRole("button", { name: "Volver a proyectos" }).click();
   await page.getByRole("heading", { name: "Proyectos" }).waitFor();
 

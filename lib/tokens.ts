@@ -242,4 +242,22 @@ export const TOKENS: TokenPlan[] = [
     note: "ATH listing; ~34% circ / 72 B. No perseguir > 0,00287",
     cycleFit: 3,
   },
+  {
+    ticker: "AR",
+    symbol: "ARUSDT",
+    digits: 3,
+    invalidation: 1.4,
+    zones: [
+      { label: "Starter", low: 2.55, high: 2.55, pct: 30 },
+      { label: "Add", low: 1.7, high: 1.7, pct: 40 },
+      { label: "Pánico", low: 1.49, high: 1.49, pct: 30 },
+    ],
+    tps: [
+      { label: "TP1", price: 91 },
+      { label: "TP2", price: 130 },
+      { label: "TP3", price: 180 },
+    ],
+    note: "66 M, ~fully circ. ATH 91 ≈ 6 B",
+    cycleFit: 3,
+  },
 ];

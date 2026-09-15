@@ -234,7 +234,7 @@ function GuideView({ onBack }: { onBack: () => void }) {
           <ul>
             <li>5 — el token ya tiene (o está a un switch de) caja: AAVE, UNI, LINK.</li>
             <li>4 — red/producto serio, captura floja o dilución de tesorería: ADA, AVAX, TAO, HBAR.</li>
-            <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA.</li>
+            <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA, AR.</li>
             <li>2 — unlocks, dilución o captura dudosa: ARB, ENA, ASTER, RON.</li>
           </ul>
         </section>
@@ -286,7 +286,6 @@ function GuideView({ onBack }: { onBack: () => void }) {
           <h2>Fuera del escáner</h2>
           <ul>
             <li>APT: 0,51–0,55. TP 19,92 / 30 / 40.</li>
-            <li>AR: starter 2,55 · add 1,70 / 1,49. INV &lt; 1,40. TP 91 / 130 / 180.</li>
             <li>XMR y ZEC: ya corrieron. No add.</li>
           </ul>
         </section>
