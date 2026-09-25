@@ -115,7 +115,7 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
     supply:
       "Máximo 10 B. Circulante ~48,7% (≈4,87 B). El próximo cliff gordo es el 18 ene 2027: ~1,7 B (ecosistema + protocol development + private sales), ~17% del supply total. Enero 2028 y 2029 siguen.",
     verdict:
-      "3★: el sector es el trade de este ciclo; el token entra después del cliff o en add, no en euforia pre-unlock. INV 0,20.",
+      "3★: el sector es el trade de este ciclo; el token entra después del cliff o en add, no en euforia pre-unlock. TP1 1,05 ≈ ATH de cap (~5,2 B), no el 2,14. INV 0,20.",
   },
   {
     ticker: "JUP",
@@ -128,7 +128,7 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
     supply:
       "Máximo 7 B. Circulante ~mitad. El 700 M de Jupuary queda congelado hasta otro voto. Reservas estratégicas siguen siendo un TBD.",
     verdict:
-      "3★ mejorado por net-zero, no por magia de ingresos. Zonas 0,20–0,22 / add 0,16–0,17. INV 0,135.",
+      "3★ mejorado por net-zero, no por magia de ingresos. TP1 1,20 ≈ ATH de cap (~4,2 B); 2,00 fue wick de listing. Zonas 0,20–0,22 / add 0,16–0,17. INV 0,135.",
   },
   {
     ticker: "RAY",
@@ -180,7 +180,7 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
     supply:
       "10 B. Team e investors terminan vesting mar 2027. El cofundador aclaró (sep 2026) que lo locked de team/investors es ~7,7% del supply; la tesorería del DAO (~2,84 B) no es locked al estilo VC: sale con voto. Unlock mensual típico ~1,4% del supply hasta esa fecha.",
     verdict:
-      "2★: L2 real, token de gobernanza con unlocks hasta 2027. 70% en 0,09–0,11. INV 0,07.",
+      "2★: L2 real, token de gobernanza con unlocks hasta 2027. TP1 0,75 ≈ ATH de cap (~5 B) sobre ~6,7 B circ, no el 2,39. 70% en 0,09–0,11. INV 0,07.",
   },
   {
     ticker: "ENA",
@@ -193,7 +193,7 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
     supply:
       "15 B máximo. Circulante ~9,8 B (~65%). Team veste hasta ~mar 2028. En 2026 rearmaron investors: buyout de sellers + unlock concentrado hacia el 5 oct 2026 (fin del goteo mensual de VCs; un tramo puede ser muy grande). Dilución a 15 B sigue siendo el techo.",
     verdict:
-      "2★: producto con revenue, token con 15 B y eventos de supply. Starter 0,138–0,145; el size grande es add/pánico. INV 0,065.",
+      "2★: producto con revenue, token con 15 B y eventos de supply. TP1 0,55 es techo de cap, no el 1,52 (eso es TP3). Starter 0,138–0,145; el size grande es add/pánico. INV 0,065.",
   },
   {
     ticker: "ASTER",
@@ -217,9 +217,9 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
     capture:
       "Gas y staking. Sky Mavis tiene el 30%. No hay fee-switch tipo UNI.",
     supply:
-      "Máximo 1 B a lo largo de ~108 meses desde 2022. Rewards 25%, community 30%, Sky Mavis 30%, ecosystem 15%. El circulante reportado se alineó al whitepaper (re-lock 2025). Sigue diluyendo hacia 1 B. ATH 4,45 era ~3,4 B de cap; el FDV a 1 B es otra película. No perseguir > 0,063.",
+      "Máximo 1 B a lo largo de ~108 meses desde 2022. Rewards 25%, community 30%, Sky Mavis 30%, ecosystem 15%. El circulante reportado se alineó al whitepaper (re-lock 2025). Sigue diluyendo hacia 1 B. ATH de precio 4,45 (mar 2024) fue ~1,35 B de cap con ~300 M circ, no 3,4 B. No hay quema: el base fee va a tesorería. No perseguir > 0,063.",
     verdict:
-      "2★: supply path a 1 B y negocio de games. Compra 0,049–0,056 / add 0,046–0,047. INV 0,044.",
+      "2★: supply path a 1 B y negocio de games. Spot del bull 1,70 / 2,55 / 4,45 (cap viejo / 1,5× / precio ATH). Compra 0,049–0,056 / add 0,046–0,047. INV 0,044.",
   },
 ];
 

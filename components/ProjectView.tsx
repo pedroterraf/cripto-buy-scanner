@@ -197,7 +197,7 @@ function GuideView({ onBack }: { onBack: () => void }) {
           </p>
           <p>
             La tesis es comprar barato (drawdown vs ATH + cap vs negocio) y vender
-            el bull entero: 20% ATH viejo / 30% ATH nuevo / 50% euforia. El primer
+            el bull entero: 20% techo de cap / 30% ATH nuevo / 50% euforia. El primer
             techo semanal no es destino. Las estrellas miden potencial de ciclo
             (si el token cobra). La lista ordena cuándo actuar: venta (TP más
             alto primero), compra (zona más baja primero), espera con filtro
@@ -225,7 +225,11 @@ function GuideView({ onBack }: { onBack: () => void }) {
             <li>3 zonas: 30% starter / 40% add / 30% pánico.</li>
             <li>2 zonas: 40% arriba / 60% más barata.</li>
             <li>1 zona: 70% en el rango, 30% reserva si perfora y el semanal no cierra bajo INV.</li>
-            <li>Venta: 20% ATH previo o techo de cap · 30% máximo nuevo (~1,5×) · 50% euforia / ~2×, trailing semanal.</li>
+            <li>
+              Venta: 20% techo de cap (precio ATH si el float no creció; si
+              diluyó, cap ATH ÷ circulante) · 30% máximo nuevo (~1,5×) · 50%
+              euforia (ATH de precio o ~2×), trailing semanal.
+            </li>
           </ul>
         </section>
 
