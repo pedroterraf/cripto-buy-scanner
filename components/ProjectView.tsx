@@ -236,9 +236,9 @@ function GuideView({ onBack }: { onBack: () => void }) {
         <section>
           <h2>Cómo leer las estrellas</h2>
           <ul>
-            <li>5 — el token ya tiene (o está a un switch de) caja: AAVE, UNI, LINK.</li>
+            <li>5 — el token ya tiene (o está a un switch de) caja: AAVE, UNI, LINK, HYPE, SKY.</li>
             <li>4 — red/producto serio, captura floja o dilución de tesorería: ADA, AVAX, TAO, HBAR.</li>
-            <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA, AR.</li>
+            <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA, AR, APT, LDO, PENDLE, CRV.</li>
             <li>2 — unlocks, dilución o captura dudosa: ARB, ENA, ASTER, RON.</li>
           </ul>
         </section>
@@ -289,7 +289,6 @@ function GuideView({ onBack }: { onBack: () => void }) {
         <section>
           <h2>Fuera del escáner</h2>
           <ul>
-            <li>APT: 0,51–0,55. TP 19,92 / 30 / 40.</li>
             <li>XMR y ZEC: ya corrieron. No add.</li>
           </ul>
         </section>
@@ -309,9 +308,9 @@ function GuideView({ onBack }: { onBack: () => void }) {
           <h2>Contras</h2>
           <ul>
             <li>No dice cuándo llega la zona. Si el piso no se retestea, no hay add.</li>
-            <li>ONDO tiene cliff ene 2027. ENA puede concentrar investors ~5 oct 2026. ARB gotea hasta mar 2027.</li>
+            <li>ONDO tiene cliff ene 2027. ENA puede concentrar investors ~5 oct 2026. ARB gotea hasta mar 2027. APT unlock 11 oct 2026. HYPE core ~6 oct 2026.</li>
             <li>ASTER atrasó el team a sep 2027; el airdrop sigue 80 meses. LINEA veste a 10 años sobre 72 B.</li>
-            <li>HBAR: Council ≠ captura. Fees a nodos/tesorería.</li>
+            <li>HBAR: Council ≠ captura. Fees a nodos/tesorería. PENDLE cobra sPENDLE, no el spot. CRV emite hacia 3 B.</li>
             <li>El cruce SMA llega tarde. Tokens nuevos pueden no tener SMA 200 semanal.</li>
             <li>Si BTC semanal pierde 76k, zona 1 se pausa aunque la card esté en oro.</li>
           </ul>
@@ -323,12 +322,14 @@ function GuideView({ onBack }: { onBack: () => void }) {
             El edge no es adivinar el fondo. Es no pagar euforia y no financiar
             unlocks. Técnico: zonas y TPs del semanal, daily como testigo, BTC
             76k/62k a mano. Fundamental: size grande solo donde el token cobra
-            (AAVE, UNI, LINK). El resto es satellite con el % ya escrito.
+            (AAVE, UNI, LINK, HYPE, SKY). El resto es satellite con el % ya escrito.
           </p>
           <p>
-            Prioridad de capital cuando las zonas vengan: 5★ primero, 4★ como
+            Prioridad de capital cuando las zonas vengan: 5★ primero (HYPE
+            45–50, no 86; SKY 0,042–0,048), 4★ como
             beta de ciclo (ADA/AVAX/TAO/HBAR) con el drag de supply en la cabeza,
-            3★ después de sus cliffs (ONDO ene 2027; JUP ya sin Jupuary 2026).
+            3★ después de sus cliffs (ONDO ene 2027; JUP ya sin Jupuary 2026;
+            APT solo 0,51–0,55; LDO 0,28–0,32; PENDLE 1,05–1,20; CRV 0,18–0,22).
             2★ solo en el tramo barato y chico: ARB hasta que termine vesting,
             ENA contra 15 B y el evento de octubre, ASTER con team corrido a 2027
             pero airdrop vivo, RON hacia 1 B.
@@ -345,7 +346,10 @@ function GuideView({ onBack }: { onBack: () => void }) {
             del cliff), Hedera Council (tesorería, max 50 B), Jupiter DAO
             (Net-Zero), Ethena Foundation (investors / oct 2026), Arbitrum
             (Goldfeder, vesting mar 2027), Ondo (cliff ene 2027), Raydium docs,
-            Ronin docs, gobernanza Aave (buybacks), UNIfication.
+            Ronin docs, gobernanza Aave (buybacks), UNIfication, Lido GOOSE H1
+            2026 (NEST / take-rate), Aptos tokenomics (max 2,1 B / unlock oct),
+            Hyperliquid Assistance Fund / unlock oct, Sky Stage 2 (surplus /
+            burn), Pendle sPENDLE (buybacks), Curve docs (veCRV / max 3,03 B).
           </p>
         </section>
       </article>

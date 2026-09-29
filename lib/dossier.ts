@@ -53,6 +53,32 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
       "El 5★ más defendible. No entrar en 11,55: la zona está escrita (11,0–11,3 / add 9,5–10,3).",
   },
   {
+    ticker: "HYPE",
+    name: "Hyperliquid",
+    stars: 5,
+    business:
+      "El DEX de perps on-chain con matching nativo. El flujo es volumen; las fees son de verdad. Compite con Binance en el mismo oficio, no con un L2 de logos.",
+    capture:
+      "El ~99% de las fees de perps/spot (salvo builder/unit) va al Assistance Fund y compra HYPE. Eso ya está vivo: no es un switch a votar. El riesgo es que el volumen caiga, no que el token no cobre.",
+    supply:
+      "Máximo 1 B. Circulante ~22% (~222 M). El 6 oct 2026 salen ~9,92 M de core contributors. El ATH 97,96 (23 sep 2026) fue ~22 B de cap con float chico; si el circulante va a 40%, ese mismo cap es ~55, no 98. TP1 98 asume que el float no explota. No perseguir 86.",
+    verdict:
+      "5★ de caja, precio de euforia. Compra 45–50 / add 28–32. INV 24. Size grande solo en zona.",
+  },
+  {
+    ticker: "SKY",
+    name: "Sky",
+    stars: 5,
+    business:
+      "Maker rebranded. El producto es USDS (ex DAI): stablecoin overcollateralized que factura stability fees. Sky es la gobernanza de esa máquina de surplus.",
+    capture:
+      "Stage 2 (ago 2026): 22,5% del surplus compra SKY para staking, 5% buy-and-burn, el resto a reservas/USDS. El token ya recicla caja. El ritmo de buyback sube cuando el Solvency Reserve llegue a 150 M; hasta entonces parte se retiene.",
+    supply:
+      "Máximo ~23,46 B. Casi fully circ (~99%). 1 MKR = 24.000 SKY. Sin cliff de VC. ATH 0,101 (dic 2024) ≈ 2,4 B. TP1 es ese precio.",
+    verdict:
+      "5★ fully circ, no barato. Compra 0,042–0,048 / add 0,036–0,038. INV 0,033. Spot ~0,07 es esperar.",
+  },
+  {
     ticker: "ADA",
     name: "Cardano",
     stars: 4,
@@ -220,6 +246,58 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
       "Máximo 1 B a lo largo de ~108 meses desde 2022. Rewards 25%, community 30%, Sky Mavis 30%, ecosystem 15%. El circulante reportado se alineó al whitepaper (re-lock 2025). Sigue diluyendo hacia 1 B. ATH de precio 4,45 (mar 2024) fue ~1,35 B de cap con ~300 M circ, no 3,4 B. No hay quema: el base fee va a tesorería. No perseguir > 0,063.",
     verdict:
       "2★: supply path a 1 B y negocio de games. Spot del bull 1,70 / 2,55 / 4,45 (cap viejo / 1,5× / precio ATH). Compra 0,049–0,056 / add 0,046–0,047. INV 0,044.",
+  },
+  {
+    ticker: "APT",
+    name: "Aptos",
+    stars: 3,
+    business:
+      "L1 Move (ex Diem). El producto es la red; Microsoft/Google Cloud son infra, no un P&L de APT.",
+    capture:
+      "Fees de gas en APT. No hay fee-switch. La tesis es beta de L1 en bull, con unlocks de core/investors todavía vivos.",
+    supply:
+      "Máximo 2,1 B. Circulante ~871 M. El 11 oct 2026 sale otro tramo (~11 M). El ATH 19,92 (ene 2023) fue ~2,3–2,6 B de cap con float chico; TP1 3,20 reimprime ese cap. 8,00 ≈ el cap del rally 2024, no 19,92.",
+    verdict:
+      "3★: L1 real, dilución. 70% en 0,51–0,55. INV 0,48. No perseguir 0,80.",
+  },
+  {
+    ticker: "LDO",
+    name: "Lido",
+    stars: 3,
+    business:
+      "El staking líquido de Ethereum. stETH es el producto; TVL de decenas de B. Lido factura. LDO no es AAVE.",
+    capture:
+      "Fee de protocolo 10% sobre rewards, partido ~5% nodos / ~5% DAO (take efectivo ~6% en H1 2026). NEST compra LDO solo si el revenue anualizado supera 40 M; hoy está debajo, así que el buyback automático está pausado. No es UNI.",
+    supply:
+      "Máximo 1 B. Circulante ~83%. Vesting viejo ya salió. El ATH de precio 7,30 / 18,62 fue float chico en 2021; el ciclo 2024 fue ~4 USD con ~890 M. TP1 4,00 = ese cap / circ de ahora. 7,30 es euforia.",
+    verdict:
+      "3★: negocio enorme, captura floja. Compra 0,28–0,32 / add 0,24–0,26. INV 0,22. Spot ~0,47 es esperar, no cazar.",
+  },
+  {
+    ticker: "PENDLE",
+    name: "Pendle",
+    stars: 3,
+    business:
+      "El mercado de yield: parte un activo en principal (PT) y yield (YT). RWA y tasas on-chain pasan por acá. El producto existe; no es un L2 de logos.",
+    capture:
+      "Hasta el 80% de las fees compra PENDLE para sPENDLE (stake, 14 días de salida). Eso está vivo. No es 5★: el bag spot no cobra (igual que ASTER veASTER), el supply no tiene techo duro y siguen las emisiones a LPs. AAVE/UNI/HYPE reciclan caja al token sin que tengas que lockear. Acá el P&L es cíclico (puntos, airdrops, tasas) y el minteo pelea contra el buyback.",
+    supply:
+      "Total listado ~282 M; Gecko marca máximo ∞ por emisiones. Circulante ~173 M, casi el mismo float que el ATH 7,50 (abr 2024, cap ~1,2 B). Vesting de team/investors ya salió. TP1 7,50 reimprime ese cap. No perseguir 2,34.",
+    verdict:
+      "3★: captura de staker, no de holder. Compra 1,05–1,20 / add 0,95–1,00. INV 0,90. Spot ~2,34 es esperar.",
+  },
+  {
+    ticker: "CRV",
+    name: "Curve",
+    stars: 3,
+    business:
+      "El stableswap de Ethereum. El flujo es volume entre pares pegados. Curve factura. CRV diluye.",
+    capture:
+      "veCRV (lock 1 sem–4 años) cobra ~50% de las fees. Spot CRV no. La captura es real y está encendida; el precio es un chorro de emisiones a LPs (~16% menos cada agosto, camino a 3,03 B en ~200 años).",
+    supply:
+      "Máximo ~3,03 B. Circulante ~1,55 B. Vesting viejo ya salió. El ATH 15,37 (2020) fue float chico; ATH de cap ~2,6 B. TP1 1,70 = ese cap / circ de ahora. 15 no es un TP.",
+    verdict:
+      "3★: caja a veCRV, infla eterna. Compra 0,18–0,22 / add 0,17–0,175. INV 0,16. Spot ~0,38 es esperar.",
   },
 ];
 

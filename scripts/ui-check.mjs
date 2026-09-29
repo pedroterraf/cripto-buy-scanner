@@ -137,8 +137,8 @@ async function runViewport(browser, viewport) {
   const grid = page.locator(".project-grid");
   await grid.waitFor();
   const pickCount = await page.getByRole("button", { name: /abrir ficha$/ }).count();
-  if (pickCount !== 16) {
-    fail(viewport.name, "project grid should list 16 tokens, got " + pickCount);
+  if (pickCount !== 22) {
+    fail(viewport.name, "project grid should list 22 tokens, got " + pickCount);
   }
   if (await page.getByRole("heading", { name: "Por qué existe esto" }).count()) {
     fail(viewport.name, "project tab showed the guide instead of the grid");
@@ -174,6 +174,36 @@ async function runViewport(browser, viewport) {
 
   await page.getByRole("button", { name: /^AR, .*abrir ficha$/ }).click();
   await page.getByText(/Máximo 66 M/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^APT, .*abrir ficha$/ }).click();
+  await page.getByText(/Máximo 2,1 B/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^LDO, .*abrir ficha$/ }).click();
+  await page.getByText(/stETH es el producto/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^HYPE, .*abrir ficha$/ }).click();
+  await page.getByText(/Assistance Fund/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^SKY, .*abrir ficha$/ }).click();
+  await page.getByText(/Stage 2/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^PENDLE, .*abrir ficha$/ }).click();
+  await page.getByText(/sPENDLE/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^CRV, .*abrir ficha$/ }).click();
+  await page.getByText(/veCRV/).waitFor();
   await page.getByRole("button", { name: "Volver a proyectos" }).click();
   await page.getByRole("heading", { name: "Proyectos" }).waitFor();
 
