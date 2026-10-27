@@ -237,8 +237,8 @@ function GuideView({ onBack }: { onBack: () => void }) {
           <h2>Cómo leer las estrellas</h2>
           <ul>
             <li>5 — el token ya tiene (o está a un switch de) caja: AAVE, UNI, LINK, HYPE, SKY.</li>
-            <li>4 — red/producto serio, captura floja o dilución de tesorería: ADA, AVAX, TAO, HBAR.</li>
-            <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA, AR, APT, LDO, PENDLE, CRV.</li>
+            <li>4 — red/producto serio, captura floja o dilución de tesorería: ADA, AVAX, TAO, HBAR, NEAR.</li>
+            <li>3 — negocio plausible, tokenomics o timing flojos: RAY, ONDO, JUP, LINEA, AR, APT, LDO, PENDLE, CRV, RENDER.</li>
             <li>2 — unlocks, dilución o captura dudosa: ARB, ENA, ASTER, RON.</li>
           </ul>
         </section>
@@ -327,9 +327,10 @@ function GuideView({ onBack }: { onBack: () => void }) {
           <p>
             Prioridad de capital cuando las zonas vengan: 5★ primero (HYPE
             45–50, no 86; SKY 0,042–0,048), 4★ como
-            beta de ciclo (ADA/AVAX/TAO/HBAR) con el drag de supply en la cabeza,
+            beta de ciclo (ADA/AVAX/TAO/HBAR/NEAR) con el drag de supply en la cabeza,
             3★ después de sus cliffs (ONDO ene 2027; JUP ya sin Jupuary 2026;
-            APT solo 0,51–0,55; LDO 0,28–0,32; PENDLE 1,05–1,20; CRV 0,18–0,22).
+            APT solo 0,51–0,55; LDO 0,28–0,32; PENDLE 1,05–1,20; CRV 0,18–0,22;
+            RENDER 1,45–1,60; NEAR 2,20–2,50).
             2★ solo en el tramo barato y chico: ARB hasta que termine vesting,
             ENA contra 15 B y el evento de octubre, ASTER con team corrido a 2027
             pero airdrop vivo, RON hacia 1 B.
@@ -349,7 +350,8 @@ function GuideView({ onBack }: { onBack: () => void }) {
             Ronin docs, gobernanza Aave (buybacks), UNIfication, Lido GOOSE H1
             2026 (NEST / take-rate), Aptos tokenomics (max 2,1 B / unlock oct),
             Hyperliquid Assistance Fund / unlock oct, Sky Stage 2 (surplus /
-            burn), Pendle sPENDLE (buybacks), Curve docs (veCRV / max 3,03 B).
+            burn), Pendle sPENDLE (buybacks), Curve docs (veCRV / max 3,03 B),
+            Render BME / RNP emisiones, NEAR docs (70% burn / infla 2,5%).
           </p>
         </section>
       </article>

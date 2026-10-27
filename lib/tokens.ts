@@ -359,4 +359,38 @@ export const TOKENS: TokenPlan[] = [
     note: "ATH 15 fue float chico. TP1 = cap ~2,6 B / circ. No perseguir 0,38",
     cycleFit: 3,
   },
+  {
+    ticker: "RENDER",
+    symbol: "RENDERUSDT",
+    digits: 3,
+    invalidation: 1.1,
+    zones: [
+      { label: "Compra", low: 1.45, high: 1.6, pct: 40 },
+      { label: "Add", low: 1.2, high: 1.3, pct: 60 },
+    ],
+    tps: [
+      { label: "TP1", price: 9.8 },
+      { label: "TP2", price: 14.7 },
+      { label: "TP3", price: 19.6 },
+    ],
+    note: "ATH 13,53 fue menos float. TP1 = cap ~5,1 B / circ. No perseguir 1,71",
+    cycleFit: 3,
+  },
+  {
+    ticker: "NEAR",
+    symbol: "NEARUSDT",
+    digits: 3,
+    invalidation: 0.9,
+    zones: [
+      { label: "Compra", low: 2.2, high: 2.5, pct: 40 },
+      { label: "Add", low: 1, high: 1.2, pct: 60 },
+    ],
+    tps: [
+      { label: "TP1", price: 10 },
+      { label: "TP2", price: 15 },
+      { label: "TP3", price: 20.4 },
+    ],
+    note: "ATH 20,44 fue float chico. TP1 = cap ~13 B / circ. No perseguir 4,60",
+    cycleFit: 4,
+  },
 ];

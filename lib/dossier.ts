@@ -10,7 +10,7 @@ export interface TokenDossier {
   verdict: string;
 }
 
-export const DOSSIER_AS_OF = "septiembre 2026";
+export const DOSSIER_AS_OF = "octubre 2026";
 
 export const TOKEN_DOSSIERS: TokenDossier[] = [
   {
@@ -298,6 +298,32 @@ export const TOKEN_DOSSIERS: TokenDossier[] = [
       "Máximo ~3,03 B. Circulante ~1,55 B. Vesting viejo ya salió. El ATH 15,37 (2020) fue float chico; ATH de cap ~2,6 B. TP1 1,70 = ese cap / circ de ahora. 15 no es un TP.",
     verdict:
       "3★: caja a veCRV, infla eterna. Compra 0,18–0,22 / add 0,17–0,175. INV 0,16. Spot ~0,38 es esperar.",
+  },
+  {
+    ticker: "RENDER",
+    name: "Render",
+    stars: 3,
+    business:
+      "Red de GPU (ex RNDR). Artistas y jobs de AI pagan cómputo; nodos alquilan placas. El producto es Octane / jobs on-chain, no un L1.",
+    capture:
+      "Burn-Mint Equilibrium: el 5% de cada job va a fee; el fiat/RENDER neto del trabajo se convierte a RENDER y se quema. Eso está vivo y el spot se beneficia del burn. No es 5★: las emisiones a nodos y Foundation (RNP-001/003/018) pelean contra la quema. Si no hay jobs, solo hay minteo.",
+    supply:
+      "Máximo ~644 M. Circulante ~519 M (~80%). El ATH 13,53 (mar 2024) fue con menos float; cap de entonces ~5,1 B. TP1 9,80 = ese cap / circ de ahora. 13,53 no es el primer corte.",
+    verdict:
+      "3★: GPU real, BME con infla de nodos. Compra 1,45–1,60 / add 1,20–1,30. INV 1,10. Spot ~1,71 es esperar un tramo.",
+  },
+  {
+    ticker: "NEAR",
+    name: "NEAR",
+    stars: 4,
+    business:
+      "L1 shardeada. Intents / chain abstraction y narrativa AI. El uso existe; el TVL DeFi es chico vs el cap.",
+    capture:
+      "70% de las fees de red se queman; 30% rebate al contrato. Emisión de staking ~2,5%/año (antes 5%). Las fees quemadas son irrelevantes vs el cap (~cientos de k al mes contra ~6 B). No hay fee-switch. Es ADA/AVAX: beta de L1.",
+    supply:
+      "Máximo ∞. Circulante ~1,31 B. El vesting de génesis terminó oct 2025. El ATH 20,44 (ene 2022) fue float chico (~13 B de cap). TP1 10,00 reimprime ese cap. El piso 2026 fue ~0,96; el rally a 5,89 no es zona.",
+    verdict:
+      "4★: L1 seria, infla neta. Compra 2,20–2,50 / add 1,00–1,20. INV 0,90. Spot ~4,60 es esperar.",
   },
 ];
 

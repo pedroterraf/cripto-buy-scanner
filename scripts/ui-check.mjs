@@ -137,8 +137,8 @@ async function runViewport(browser, viewport) {
   const grid = page.locator(".project-grid");
   await grid.waitFor();
   const pickCount = await page.getByRole("button", { name: /abrir ficha$/ }).count();
-  if (pickCount !== 22) {
-    fail(viewport.name, "project grid should list 22 tokens, got " + pickCount);
+  if (pickCount !== 24) {
+    fail(viewport.name, "project grid should list 24 tokens, got " + pickCount);
   }
   if (await page.getByRole("heading", { name: "Por qué existe esto" }).count()) {
     fail(viewport.name, "project tab showed the guide instead of the grid");
@@ -204,6 +204,16 @@ async function runViewport(browser, viewport) {
 
   await page.getByRole("button", { name: /^CRV, .*abrir ficha$/ }).click();
   await page.getByText(/veCRV/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^RENDER, .*abrir ficha$/ }).click();
+  await page.getByText(/Burn-Mint Equilibrium/).waitFor();
+  await page.getByRole("button", { name: "Volver a proyectos" }).click();
+  await page.getByRole("heading", { name: "Proyectos" }).waitFor();
+
+  await page.getByRole("button", { name: /^NEAR, .*abrir ficha$/ }).click();
+  await page.getByText(/70% de las fees/).waitFor();
   await page.getByRole("button", { name: "Volver a proyectos" }).click();
   await page.getByRole("heading", { name: "Proyectos" }).waitFor();
 
